@@ -39,4 +39,22 @@ export class AuthService {
             access_token: token
         }
     }
+    async changePassword(email:string, oldPassword:string, newPassword:string) {
+        const currentUser = await this.userService.findByEmail(email);
+        if (!currentUser) {
+            throw new BadRequestException("Email does not exist");
+        }
+        const match = await bcrypt.compare(oldPassword, currentUser.password);
+        if (!match) {
+            throw new BadRequestException("Wrong password");
+        }
+        const hashed_password = await bcrypt.hash(newPassword, 10);
+        await this.userService.changePassword(email, hashed_password)
+        const token = this.jwtService.sign({
+            userId: currentUser._id,
+        });
+        return {
+            access_token: token
+        }
+    }
 }

@@ -25,4 +25,13 @@ export class AuthController {
     getMe(@Req() req){
         return req.user;
     }
+    @Post('change-password')
+    @UseGuards(AuthGuard('jwt'))
+    changePassword(
+        @Body('email') email: string,
+        @Body('oldPassword') oldPassword: string,
+        @Body('newPassword') newPassword: string,
+    ) {
+        return this.authService.changePassword(email, oldPassword, newPassword)
+    }
 }

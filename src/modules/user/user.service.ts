@@ -21,4 +21,7 @@ export class UserService {
     async create(data: any) {
         return this.userModel.create(data);
     }
+    async changePassword(email: string, password: string) {
+        return this.userModel.findOneAndUpdate({email}, {password});
+    }
 }
