@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
+
     @Post('register')
     register(
         @Body('email') email: string,
@@ -13,6 +14,7 @@ export class AuthController {
     ) {
         return this.authService.register(email, password, name);
     }
+
     @Post('login')
     login(
         @Body('email') email: string,
@@ -20,11 +22,13 @@ export class AuthController {
     ){
         return this.authService.login(email, password);
     }
+
     @Get('me')
     @UseGuards(AuthGuard('jwt'))
     getMe(@Req() req){
         return req.user;
     }
+
     @Post('change-password')
     @UseGuards(AuthGuard('jwt'))
     changePassword(
@@ -33,5 +37,18 @@ export class AuthController {
         @Body('newPassword') newPassword: string,
     ) {
         return this.authService.changePassword(email, oldPassword, newPassword)
+    }
+
+    @Post('forgot-password')
+    forgot(@Body('email') email: string) {
+        return this.authService.sendPasswordRecoveryEmail(email);
+    }
+
+    @Post('reset-password')
+    reset(
+        @Body('token') token: string,
+        @Body('password') password: string
+    ){
+        return this.authService.resetPassword(token, password);
     }
 }

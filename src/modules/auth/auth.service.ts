@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { access } from 'fs';
+import * as nodemailer from 'nodemailer'
 
 @Injectable()
 export class AuthService {
@@ -55,6 +56,43 @@ export class AuthService {
         });
         return {
             access_token: token
+        }
+    }
+    async sendPasswordRecoveryEmail(email:string) {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new BadRequestException('Email does not exist');
+        }
+        const token = this.jwtService.sign(
+            {email},
+            {expiresIn: '10m'}
+        );
+        const resetLink = `http://localhost:3001/auth/reset-password?token=${token}`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'deverse2026tech@gmail.com',
+                pass: 'rfku ebhl cbfj vpvw'
+            },
+        });
+        await transporter.sendMail({
+            to: email,
+            subject: 'Reset Password',
+            html: `
+                <h3>Reset your password</h3>
+                <a href="${resetLink}">Click here to reset</a>
+            `,
+        });
+        return {message: 'Reset email sent'}
+    }
+    async resetPassword(token:string, newPassword: string) {
+        try {
+            const payload = this.jwtService.verify(token);
+            const hashed_password = await bcrypt.hash(newPassword, 10);
+            await this.userService.changePassword(payload.email, hashed_password);
+            return {message: 'Password reset successful'}
+        } catch(err) {
+            throw new BadRequestException('Ivalid or expired token');
         }
     }
 }
