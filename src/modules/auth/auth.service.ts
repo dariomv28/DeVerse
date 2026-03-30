@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config'
 import { access } from 'fs';
 import * as nodemailer from 'nodemailer'
 
@@ -10,6 +11,7 @@ export class AuthService {
     constructor(
         private userService: UserService,
         private jwtService: JwtService,
+        private configService: ConfigService,
     ) {}
     async register(email: string, password: string, name: string) {
         const existingEmail = await this.userService.findByEmail(email);
@@ -71,8 +73,8 @@ export class AuthService {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'deverse2026tech@gmail.com',
-                pass: 'rfku ebhl cbfj vpvw'
+                user: this.configService.get<string>('MAIL_USER'),
+                pass: this.configService.get<string>('MAIL_PASS'),
             },
         });
         await transporter.sendMail({
