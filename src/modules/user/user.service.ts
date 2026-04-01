@@ -25,8 +25,9 @@ export class UserService {
     async changePassword(email: string, password: string) {
         return this.userModel.findOneAndUpdate({email}, {password});
     }
-    async search(q: string) {
+    async search(q: string, currentUserId: string) {
         return this.userModel.find({
+            _id: {$ne: currentUserId},
             name: {$regex: q, $options: 'i'},
         }).limit(5)
     }

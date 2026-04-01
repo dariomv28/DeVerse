@@ -12,8 +12,8 @@ export class UserController {
 
   @Get('search')
   @UseGuards(AuthGuard('jwt'))
-  search(@Query('q') q: string) {
-    return this.userService.search(q)
+  search(@Query('q') q: string, @Req() req) {
+    return this.userService.search(q, req.user.userId);
   }
 
   @Post(':id/follow')
