@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
@@ -23,5 +24,22 @@ export class UserService {
     }
     async changePassword(email: string, password: string) {
         return this.userModel.findOneAndUpdate({email}, {password});
+    }
+    async search(q: string) {
+        return this.userModel.find({
+            name: {$regex: q, $options: 'i'},
+        }).limit(5)
+    }
+    async follow(userId: string, targetId: string) {
+        if (userId === targetId) {
+            throw new BadRequestException('Cannot follow yourself')
+        }
+        await this.userModel.findByIdAndUpdate(userId, {
+            $addToSet: { following: targetId },
+        })
+        await this.userModel.findByIdAndUpdate(targetId, {
+            $addToSet: { followers: userId },
+        })
+        return { message: 'Followed' }
     }
 }
