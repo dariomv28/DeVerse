@@ -6,24 +6,24 @@ export type UserDocument = User & Document;
 export class User {
 
     @Prop({unique : true})
-    email: string;
+    email!: string;
 
     @Prop()
-    password: string;
+    password!: string;
 
     @Prop()
-    name: string;
+    name!: string;
 
     @Prop({type : [{type: Types.ObjectId, ref : 'User'}]})
-    followers: Types.ObjectId[];
+    followers!: Types.ObjectId[];
 
     @Prop({type : [{type : Types.ObjectId, ref : 'User'}]})
-    following: Types.ObjectId[];
+    following!: Types.ObjectId[];
 
     @Prop({type : [{type : Types.ObjectId, ref : 'User'}]})
-    friends: Types.ObjectId[];
+    friends!: Types.ObjectId[];
 
     @Prop({ default: '' })
-    avatar: string;
+    avatar!: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
