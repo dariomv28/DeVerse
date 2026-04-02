@@ -1,14 +1,22 @@
-import { Controller, Get, Post, Param, Query, Req, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, } from '@nestjs/common'
 import { UserService } from './user.service'
 import { AuthGuard } from '@nestjs/passport'
 import { FriendRequestService } from './friend-request.service'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { avatarStorage } from 'src/common/upload/avatar.storage'
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly friendRequestService: FriendRequestService,
-  ) {}
+  ) { }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  getMe(@Req() req) {
+    return this.userService.findById(req.user.userId);
+  }
 
   @Get('search')
   @UseGuards(AuthGuard('jwt'))
@@ -56,5 +64,19 @@ export class UserController {
       id,
       req.user.userId,
     )
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload-avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: avatarStorage,
+    }),
+  )
+  uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req,
+  ) {
+    return this.userService.uploadAvatar(req.user.userId, file);
   }
 }

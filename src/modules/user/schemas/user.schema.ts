@@ -22,5 +22,8 @@ export class User {
 
     @Prop({type : [{type : Types.ObjectId, ref : 'User'}]})
     friends: Types.ObjectId[];
+
+    @Prop({ default: '' })
+    avatar: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
