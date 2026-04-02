@@ -38,7 +38,7 @@ export class FriendRequestService {
     async getRequests(userId: string) {
         return this.friendRequestModel
             .find({ to: userId, status: 'pending' })
-            .populate('from', 'name email')
+            .populate('from', 'name email avatar')
     }
     async acceptRequest(requestId: string, currentUserId: string) {
         const request = await this.friendRequestModel.findById(requestId)
