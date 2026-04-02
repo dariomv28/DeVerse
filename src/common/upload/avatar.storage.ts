@@ -1,11 +1,17 @@
 import { diskStorage } from 'multer'
 import { extname } from 'path'
 import { Request } from 'express'
+import * as fs from 'fs'
 
 export const avatarStorage = diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads/avatars')
+        const uploadPath = './uploads/avatars'
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true })
+        }
+        cb(null, uploadPath)
     },
+
     filename: (req: Request & { user: any }, file, cb) => {
         const userId = req.user.userId
         const ext = extname(file.originalname)
