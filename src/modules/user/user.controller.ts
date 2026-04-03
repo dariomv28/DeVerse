@@ -3,7 +3,7 @@ import { UserService } from './user.service'
 import { AuthGuard } from '@nestjs/passport'
 import { FriendRequestService } from './friend-request.service'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { avatarStorage } from 'src/common/upload/avatar.storage'
+import { avatarStorage } from '../../common/upload/avatar.storage'
 
 @Controller('users')
 export class UserController {
