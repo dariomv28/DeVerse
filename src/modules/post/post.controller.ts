@@ -41,12 +41,38 @@ export class PostController {
     @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     deletePost(@Param('id') id: string, @Req() req) {
-        return this.postService.delete(id, req.user.userId);
+        return this.postService.deletePost(id, req.user.userId);
     }
 
     @UseGuards(AuthGuard('jwt'))
     @HttpPost(':id/like')
-    likePost(@Param('id') id: string) {
-        return this.postService.like(id);
+    toggleLike(@Param('id') id: string, @Req() req) {
+        return this.postService.toggleLike(id, req.user.userId);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @HttpPost(':id/comment')
+    postComment(
+        @Param('id') postId: string,
+        @Body('content') content: string,
+        @Req() req,
+    ) {
+        return this.postService.postComment(
+            postId,
+            req.user.userId,
+            content,
+        );
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Delete('comment/:commentId')
+    deleteComment(
+        @Param('commentId') commentId: string,
+        @Req() req,
+    ) {
+        return this.postService.deleteComment(
+            commentId,
+            req.user.userId,
+        );
     }
 }
