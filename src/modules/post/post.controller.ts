@@ -7,9 +7,13 @@ import {
     Body,
     Req,
     UseGuards,
+    UploadedFiles
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { AuthGuard } from '@nestjs/passport';
+import { postStorage } from '../../common/upload/postStorage';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UseInterceptors } from '@nestjs/common';
 
 @Controller('posts')
 export class PostController {
@@ -17,14 +21,20 @@ export class PostController {
 
     @UseGuards(AuthGuard('jwt'))
     @HttpPost()
+    @UseInterceptors(
+        FilesInterceptor('image',10, {
+            storage: postStorage
+        })
+    )
     createPost(
-        @Body() body: { content: string; images?: string[] },
+        @UploadedFiles() files: Express.Multer.File[],
+        @Body('content') content: string,
         @Req() req,
     ) {
         return this.postService.create(
-            body.content,
-            body.images || [],
-            req.user.userId,
+            content,
+            files,
+            req.user.userId
         );
     }
 
@@ -75,4 +85,5 @@ export class PostController {
             req.user.userId,
         );
     }
+
 }
