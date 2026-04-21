@@ -1,38 +1,41 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    NotFoundException,
+    ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from './schemas/post.schema';
 import { Comment, CommentDocument } from './schemas/comment.schema';
 import { Like, LikeDocument } from './schemas/like.schema';
+import * as path from 'path';
 import * as fs from 'fs';
+import { PostGateway } from './post.gateway';
 
 @Injectable()
 export class PostService {
     constructor(
+        @Inject('REDIS_CLIENT') private readonly redis: Redis,
+        private readonly postGateway: PostGateway,
         @InjectModel(Post.name) private postModel: Model<PostDocument>,
         @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-        @InjectModel(Like.name) private likeModel: Model<LikeDocument>
+        @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
     ) {}
 
     async create(content: string, files: any[], userId: string) {
-        const session = await this.postModel.db.startSession();
-        session.startTransaction();
-
         let dir = '';
+        const uploadRoot = path.join(process.cwd(), 'uploads');
 
         try {
-            const [post] = await this.postModel.create(
-                [
-                    {
-                        content,
-                        images: [],
-                        author: userId,
-                    },
-                ],
-                { session }
-            );
+            const post = await this.postModel.create({
+                content,
+                images: [],
+                author: userId,
+            });
 
-            dir = `./uploads/posts/${post._id}`;
+            dir = path.join(uploadRoot, 'posts', post._id.toString());
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, { recursive: true });
             }
@@ -40,37 +43,33 @@ export class PostService {
             const imagePaths: string[] = [];
 
             for (const file of files) {
-                const newPath = `${dir}/${file.filename}`;
-
-                fs.renameSync(file.path, newPath);
+                const newPath = path.join(dir, file.filename);
+                fs.copyFileSync(file.path, newPath);
+                fs.unlinkSync(file.path);
 
                 imagePaths.push(`/uploads/posts/${post._id}/${file.filename}`);
             }
 
-            await this.postModel.updateOne(
-                { _id: post._id },
-                { images: imagePaths }
-            ).session(session);
+            post.images = imagePaths;
+            await post.save();
 
-            await session.commitTransaction();
-            session.endSession();
+            const populatedPost = await this.postModel
+                .findById(post._id)
+                .populate('author', 'name avatar')
+                .lean();
 
-            return {
-                ...post.toObject(),
-                images: imagePaths,
-            };
+            this.postGateway.server.emit('post.created', {
+                post: populatedPost,
+            });
+
+            await this.clearAllFeedCache();
+
+            return populatedPost;
         } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-
-            // cleanup file temp
             for (const file of files) {
-                if (fs.existsSync(file.path)) {
-                    fs.unlinkSync(file.path);
-                }
+                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
             }
 
-            // cleanup folder nếu đã tạo
             if (dir && fs.existsSync(dir)) {
                 fs.rmSync(dir, { recursive: true, force: true });
             }
@@ -79,198 +78,227 @@ export class PostService {
         }
     }
 
-    async getFeed() {
+    async getFeed(page = 1, limit = 5, userId?: string) {
+        const cacheKey = `feed:${page}:${limit}:${userId || 'guest'}`;
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const skip = (page - 1) * limit;
+
         const posts = await this.postModel
             .find()
-            .populate('author', 'name')
+            .populate('author', 'name avatar')
             .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .lean();
 
         const postIds = posts.map(p => p._id);
 
         const comments = await this.commentModel
             .find({ post: { $in: postIds } })
-            .populate('author', 'name')
+            .populate('author', 'name avatar')
             .sort({ createdAt: -1 })
             .lean();
 
-        const likes = await this.likeModel
-            .find({ pid: { $in: postIds } })
-            .populate('uid', 'name')
-            .sort({ createdAt: -1 })
-            .lean();
+        const likeCounts = await this.likeModel.aggregate([
+            { $match: { pid: { $in: postIds } } },
+            { $group: { _id: '$pid', count: { $sum: 1 } } }
+        ]);
 
-        return posts.map(post => ({
-            ...post,
-            comments: comments.filter(c => c.post.toString() === post._id.toString()),
-            likes: likes.filter(l => l.pid.toString() === post._id.toString()),
-        }));
+        const likeMap = new Map(
+            likeCounts.map(l => [l._id.toString(), l.count])
+        );
+
+        let likedSet = new Set<string>();
+
+        if (userId) {
+            const userLikes = await this.likeModel.find({
+                pid: { $in: postIds },
+                uid: userId,
+            }).lean();
+
+            likedSet = new Set(userLikes.map(l => l.pid.toString()));
+        }
+
+        const result = posts.map(post => {
+            const postComments = comments.filter(
+                c => c.post.toString() === post._id.toString()
+            );
+
+            return {
+                ...post,
+                comments: postComments,
+                likeCount: likeMap.get(post._id.toString()) || 0,
+                commentCount: postComments.length,
+                isLiked: likedSet.has(post._id.toString()),
+            };
+        });
+
+        await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 10);
+
+        return result;
     }
 
-    async getById(postId: string) {
+    async getById(postId: string, userId?: string) {
         const post = await this.postModel
             .findById(postId)
-            .populate('author', 'name')
+            .populate('author', 'name avatar')
             .lean();
 
-        if (!post) {
-            throw new NotFoundException('Post not found');
-        }
+        if (!post) throw new NotFoundException('Post not found');
 
         const comments = await this.commentModel
             .find({ post: post._id })
-            .populate('author', 'name')
+            .populate('author', 'name avatar')
             .sort({ createdAt: -1 })
             .lean();
 
-        const likes = await this.likeModel
-            .find({ pid: post._id })
-            .populate('uid', 'name')
-            .sort({ createdAt: -1 })
-            .lean();
+        const likeCount = await this.likeModel.countDocuments({
+            pid: post._id,
+        });
+
+        let isLiked = false;
+
+        if (userId) {
+            isLiked = !!(await this.likeModel.findOne({
+                pid: postId,
+                uid: userId,
+            }));
+        }
 
         return {
             ...post,
             comments,
-            likes
+            likeCount,
+            commentCount: comments.length,
+            isLiked,
         };
     }
 
     async deletePost(postId: string, userId: string) {
-        const session = await this.postModel.db.startSession();
-        session.startTransaction();
+        const post = await this.postModel.findById(postId);
 
-        try {
-            const post = await this.postModel.findById(postId).session(session);
+        if (!post) throw new NotFoundException('Post not found');
 
-            if (!post) throw new NotFoundException('Post not found');
-
-            if (post.author.toString() !== userId) {
-                throw new ForbiddenException('Only authors can delete their posts');
-            }
-
-            await this.commentModel.deleteMany({ post: post._id }).session(session);
-            await this.likeModel.deleteMany({ pid: post._id }).session(session);
-            await this.postModel.deleteOne({ _id: post._id }).session(session);
-
-            await session.commitTransaction();
-            session.endSession();
-
-            return { message: 'Post and related data deleted' };
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
+        if (post.author.toString() !== userId) {
+            throw new ForbiddenException('Only authors can delete');
         }
+
+        await this.commentModel.deleteMany({ post: postId });
+        await this.likeModel.deleteMany({ pid: postId });
+        await this.postModel.deleteOne({ _id: postId });
+
+        const dir = path.join(
+            process.cwd(),
+            'uploads/posts',
+            postId.toString()
+        );
+
+        if (fs.existsSync(dir)) {
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+
+        this.postGateway.server.emit('post.deleted', {
+            postId,
+        });
+
+        await this.clearAllFeedCache();
+
+        return { message: 'Deleted' };
     }
 
     async toggleLike(postId: string, userId: string) {
-        const session = await this.postModel.db.startSession();
-        session.startTransaction();
+        const existing = await this.likeModel.findOne({
+            pid: postId,
+            uid: userId,
+        });
 
-        try {
-            const post = await this.postModel.findById(postId).session(session);
-            if (!post) throw new NotFoundException('Post not found');
+        let isLiked = false;
 
-            const existingLike = await this.likeModel.findOne({
+        if (existing) {
+            await this.likeModel.deleteOne({ _id: existing._id });
+            isLiked = false;
+        } else {
+            await this.likeModel.create({
                 pid: postId,
                 uid: userId,
-            }).session(session);
-
-            if (existingLike) {
-                await this.likeModel.deleteOne({ _id: existingLike._id }).session(session);
-                await this.postModel.updateOne(
-                    { _id: postId },
-                    { $inc: { likeCount: -1 } }
-                ).session(session);
-
-                await session.commitTransaction();
-                session.endSession();
-                return { liked: false };
-            }
-
-            await this.likeModel.create(
-                [{ pid: postId, uid: userId }],
-                { session }
-            );
-
-            await this.postModel.updateOne(
-                { _id: postId },
-                { $inc: { likeCount: 1 } }
-            ).session(session);
-
-            await session.commitTransaction();
-            session.endSession();
-            return { liked: true };
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
+            });
+            isLiked = true;
         }
+
+        const likeCount = await this.likeModel.countDocuments({
+            pid: postId,
+        });
+
+        this.postGateway.server.emit('post.updated', {
+            postId,
+            likeCount,
+            isLiked,
+            userId,
+            type: 'LIKE_UPDATE',
+        });
+
+        await this.clearAllFeedCache();
+
+        return { likeCount, isLiked };
     }
 
     async postComment(postId: string, userId: string, content: string) {
-        const session = await this.postModel.db.startSession();
-        session.startTransaction();
+        const comment = await this.commentModel.create({
+            post: postId,
+            author: userId,
+            content,
+        });
 
-        try {
-            const post = await this.postModel.findById(postId).session(session);
-            if (!post) throw new NotFoundException('Post not found');
+        const populatedComment = await this.commentModel
+            .findById(comment._id)
+            .populate('author', 'name avatar')
+            .lean();
 
-            const [comment] = await this.commentModel.create(
-                [{ post: postId, author: userId, content }],
-                { session }
-            );
+        const commentCount = await this.commentModel.countDocuments({
+            post: postId,
+        });
 
-            await this.postModel.updateOne(
-                { _id: postId },
-                { $inc: { commentCount: 1 } }
-            ).session(session);
+        this.postGateway.server.emit('post.updated', {
+            postId,
+            commentCount,
+            comment: populatedComment,
+            type: 'COMMENT_ADD',
+        });
 
-            await session.commitTransaction();
-            session.endSession();
+        await this.clearAllFeedCache();
 
-            return comment;
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
-        }
+        return populatedComment;
     }
 
     async deleteComment(commentId: string, userId: string) {
-        const session = await this.postModel.db.startSession();
-        session.startTransaction();
+        const comment = await this.commentModel.findById(commentId);
 
-        try {
-            const comment = await this.commentModel.findById(commentId).session(session);
-            if (!comment) throw new NotFoundException('Comment not found');
+        if (!comment) throw new NotFoundException();
 
-            const post = await this.postModel.findById(comment.post).session(session);
-            if (!post) throw new NotFoundException('Post not found');
+        await this.commentModel.deleteOne({ _id: commentId });
 
-            if (
-                comment.author.toString() !== userId &&
-                post.author.toString() !== userId
-            ) {
-                throw new ForbiddenException('You cannot delete this comment');
-            }
+        const commentCount = await this.commentModel.countDocuments({
+            post: comment.post,
+        });
 
-            await this.commentModel.deleteOne({ _id: commentId }).session(session);
+        this.postGateway.server.emit('post.updated', {
+            postId: comment.post,
+            commentCount,
+            commentId: commentId,
+            type: 'COMMENT_DELETE',
+        });
 
-            await this.postModel.updateOne(
-                { _id: comment.post },
-                { $inc: { commentCount: -1 } }
-            ).session(session);
+        await this.clearAllFeedCache();
 
-            await session.commitTransaction();
-            session.endSession();
+        return { message: 'Deleted' };
+    }
 
-            return { message: 'Comment deleted' };
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
+    private async clearAllFeedCache() {
+        const keys = await this.redis.keys('feed:*');
+        if (keys.length) {
+            await this.redis.del(...keys);
         }
     }
 }

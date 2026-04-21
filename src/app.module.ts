@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
+import Redis from 'ioredis';
+import { RedisModule } from './redis/redis.module';
 import { TestModule } from './test/test.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -18,7 +20,8 @@ import { PostModule } from './modules/post/post.module';
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGO_URI'),
       }),
-    }), 
+    }),
+    RedisModule.forRootAsync(),
     TestModule, 
     UserModule, 
     AuthModule, 
