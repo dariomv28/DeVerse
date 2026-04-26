@@ -27,16 +27,22 @@ export class UserController {
   @Post(':id/follow')
   @UseGuards(AuthGuard('jwt'))
   follow(@Param('id') targetId: string, @Req() req) {
-    return this.userService.follow(req.user.userId, targetId)
+    return this.userService.follow(req.user.userId?.toString ? req.user.userId.toString() : req.user.userId, targetId)
   }
 
   @Post(':id/add-friend')
   @UseGuards(AuthGuard('jwt'))
   addFriend(@Param('id') targetId: string, @Req() req) {
     return this.friendRequestService.createRequest(
-      req.user.userId,
+      req.user.userId?.toString ? req.user.userId.toString() : req.user.userId,
       targetId,
     )
+  }
+
+  @Post(':id/cancel-request')
+  @UseGuards(AuthGuard('jwt'))
+  cancelRequest(@Param('id') targetId: string, @Req() req) {
+    return this.friendRequestService.cancelRequest(req.user.userId?.toString ? req.user.userId.toString() : req.user.userId, targetId)
   }
 
   // GET REQUESTS
@@ -52,7 +58,7 @@ export class UserController {
   accept(@Param('id') id: string, @Req() req) {
     return this.friendRequestService.acceptRequest(
       id,
-      req.user.userId,
+      req.user.userId?.toString ? req.user.userId.toString() : req.user.userId,
     )
   }
 
@@ -62,7 +68,7 @@ export class UserController {
   reject(@Param('id') id: string, @Req() req) {
     return this.friendRequestService.rejectRequest(
       id,
-      req.user.userId,
+      req.user.userId?.toString ? req.user.userId.toString() : req.user.userId,
     )
   }
 
