@@ -5,6 +5,7 @@ import { FriendRequestSchema } from "./schemas/friend_request.schema";
 import { FriendRequestService } from "./friend-request.service";
 import { User } from "./schemas/user.schema";
 import { UserSchema } from "./schemas/user.schema";
+import { UserGateway } from './user.gateway';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { UserSchema } from "./schemas/user.schema";
       { name: User.name, schema: UserSchema },
     ]),
   ],
-  providers: [FriendRequestService],
-  exports: [FriendRequestService],
+  providers: [FriendRequestService, UserGateway],
+  exports: [FriendRequestService, UserGateway],
 })
 export class FriendRequestModule {}
