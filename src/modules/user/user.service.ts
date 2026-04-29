@@ -95,6 +95,44 @@ export class UserService {
         })
     }
 
+    async getRelations(currentUserId: string, targetIds: string[]) {
+        const currentUserIdStr = currentUserId && typeof currentUserId !== 'string' && (currentUserId as any).toString ? (currentUserId as any).toString() : (currentUserId || '')
+
+        const currentUser = await this.userModel.findById(currentUserIdStr).select('following friends').lean()
+
+        const pending = await this.friendRequestModel
+            .find({
+                status: 'pending',
+                $or: [
+                    { from: currentUserIdStr, to: { $in: targetIds } },
+                    { from: { $in: targetIds }, to: currentUserIdStr },
+                ],
+            })
+            .lean()
+
+        const requestMap = new Map<string, { type: 'sent' | 'received'; id: string }>()
+        for (const r of pending) {
+            const from = r.from.toString()
+            const to = r.to.toString()
+            if (from === currentUserIdStr) requestMap.set(to, { type: 'sent', id: r._id.toString() })
+            else if (to === currentUserIdStr) requestMap.set(from, { type: 'received', id: r._id.toString() })
+        }
+
+        return (targetIds || []).map((tid) => {
+            const id = tid.toString()
+            const isFollowing = Array.isArray(currentUser?.following) && currentUser.following.find((f: any) => f.toString() === id)
+            const isFriend = Array.isArray(currentUser?.friends) && currentUser.friends.find((f: any) => f.toString() === id)
+            const req = requestMap.get(id)
+            return {
+                id,
+                isFollowing: !!isFollowing,
+                isFriend: !!isFriend,
+                friendRequestStatus: req ? req.type : 'none',
+                friendRequestId: req ? req.id : null,
+            }
+        })
+    }
+
     async follow(userId: string, targetId: string) {
         if (userId === targetId) {
             throw new BadRequestException('Cannot follow yourself');

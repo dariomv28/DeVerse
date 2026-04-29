@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, } from '@nestjs/common'
+import { Controller, Get, Post, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, Body } from '@nestjs/common'
 import { UserService } from './user.service'
 import { AuthGuard } from '@nestjs/passport'
 import { FriendRequestService } from './friend-request.service'
@@ -43,6 +43,12 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   cancelRequest(@Param('id') targetId: string, @Req() req) {
     return this.friendRequestService.cancelRequest(req.user.userId?.toString ? req.user.userId.toString() : req.user.userId, targetId)
+  }
+
+  @Post('relations')
+  @UseGuards(AuthGuard('jwt'))
+  relations(@Body('ids') ids: string[], @Req() req) {
+    return this.userService.getRelations(req.user.userId?.toString ? req.user.userId.toString() : req.user.userId, ids || [])
   }
 
   // GET REQUESTS
