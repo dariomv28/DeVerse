@@ -1,0 +1,58 @@
+﻿@using SocialNetwork.Core.Application.ViewModels.Comment;
+@using SocialNetwork.Core.Application.ViewModels.Post
+@model SaveCommentViewModel
+@{
+    PostViewModel post = ViewBag.Post;
+    ViewData["Title"] = "Comment post";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-6 offset-3">
+            <div class="card mt-3 card-box-shadow">
+                <div class="card-header bg-white d-flex align-items-center">
+                    <img src="@post.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @post.UserName" style="width: 50px; height: 50px;">
+                    <div>
+                        <strong>@post.UserName</strong>
+                        <p class="mb-0 text-muted text-end"><small>@post.Created.ToString()</small></p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>@post.Content</p>
+                    @if (post.Attachment != null)
+                    {
+                        <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
+                    }
+                </div>
+                <div class="card-footer bg-white mt-3">
+                    <h5 class="mb-3">Comments</h5>
+                    @if (post.Comments.Count > 0)
+                    {
+                        foreach (CommentViewModel commentVm in post.Comments)
+                        {
+                            <div class="d-flex align-items-center mb-3 border-1">
+                                <img src="@commentVm.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @commentVm.UserName" style="width: 50px; height: 50px;">
+                                <div>
+                                    <strong>@commentVm.UserName</strong>
+                                    <p>@commentVm.Content</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div class="p-0">
+                        <form method="post" asp-controller="Post" asp-action="AddComment">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="PostId" />
+
+                            <div class="mb-3 d-flex align-items-center">
+                                <input asp-for="Content" class="form-control me-2" placeholder="Submit your comment... " />
+                                <span asp-validation-for="Content" class="text-danger"></span>
+                                <button type="submit" class="btn btn-primary">Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

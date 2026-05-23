@@ -1,0 +1,16 @@
+﻿@model SocialNetwork.Core.Application.ViewModels.Post.SavePostViewModel
+
+@{
+    ViewData["Title"] = "Delete post";
+}
+<div class="container mt-5">
+    <div class="bg-white shadow border rounded-3 p-4 mt-4 text-center card-box-shadow">
+        <h3 class="mb-3">¿Are you sure you want to delete the post?</h3>
+
+        <form asp-controller="Post" asp-action="DeletePost">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a class="btn btn-secondary" asp-controller="Home" asp-action="Index">Cancel</a>
+        </form>
+    </div>
+</div>
