@@ -6,9 +6,12 @@
 
 @{
     ViewData["Title"] = "Friend posts";
+
     List<FriendViewModel> friends = ViewBag.Friends;
     List<PostViewModel> posts = ViewBag.Posts;
+    List<FriendViewModel> pendingRequests = ViewBag.PendingRequests;
 }
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-3">
@@ -16,23 +19,74 @@
                 <div class="card-header bg-white">
                     <h4>Friends</h4>
                 </div>
+
                 <div class="card-body">
                     <button type="button" class="btn btn-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         <i class="bi bi-plus-circle-fill"></i>
                         Add Friend
                     </button>
+
+                    <div class="mb-3">
+                        <h5>Friend Requests</h5>
+
+                        @if (pendingRequests != null && pendingRequests.Count > 0)
+                        {
+                            @foreach (FriendViewModel request in pendingRequests)
+                            {
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="@request.ProfilePicture"
+                                         class="rounded-circle me-2"
+                                         alt="Foto del usuario @request.Username"
+                                         style="width: 50px; height: 50px;" />
+
+                                    <div class="flex-grow-1">
+                                        <strong>@request.FirstName @request.LastName</strong>
+                                        <p class="mb-0">
+                                            <small>@request.Username</small>
+                                        </p>
+                                    </div>
+
+                                    <div class="ms-auto">
+                                        <a class="btn btn-success btn-sm"
+                                           asp-controller="Friend"
+                                           asp-action="AcceptFriendRequest"
+                                           asp-route-id="@request.FriendshipId">
+                                            Accept
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">No pending friend requests</p>
+                        }
+
+                        <hr />
+                    </div>
+
                     @if (friends != null && friends.Count > 0)
                     {
                         @foreach (FriendViewModel friend in friends)
                         {
                             <div class="d-flex align-items-center mb-2">
-                                <img src="@friend.ProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @friend.Username" style="width: 50px; height: 50px;">
+                                <img src="@friend.ProfilePicture"
+                                     class="rounded-circle me-2"
+                                     alt="Foto del usuario @friend.Username"
+                                     style="width: 50px; height: 50px;" />
+
                                 <div class="flex-grow-1">
                                     <strong>@friend.FirstName @friend.LastName</strong>
-                                    <p class="mb-0"><small>@friend.Username</small></p>
+                                    <p class="mb-0">
+                                        <small>@friend.Username</small>
+                                    </p>
                                 </div>
+
                                 <div class="ms-auto">
-                                    <a class="btn btn-danger btn-sm" asp-controller="Friend" asp-action="Delete" asp-route-id="@friend.FriendshipId">
+                                    <a class="btn btn-danger btn-sm"
+                                       asp-controller="Friend"
+                                       asp-action="Delete"
+                                       asp-route-id="@friend.FriendshipId">
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
                                 </div>
@@ -42,6 +96,7 @@
                 </div>
             </div>
         </div>
+
         <div class="col-6 offset-1">
             @if (posts != null && posts.Count > 0)
             {
@@ -49,27 +104,43 @@
                 {
                     <div class="card mt-3 card-box-shadow">
                         <div class="card-header bg-white d-flex align-items-center">
-                            <img src="@post.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @post.UserName" style="width: 50px; height: 50px;">
+                            <img src="@post.UserProfilePicture"
+                                 class="rounded-circle me-2"
+                                 alt="Foto del usuario @post.UserName"
+                                 style="width: 50px; height: 50px;" />
+
                             <div>
                                 <strong>@post.UserName</strong>
-                                <p class="mb-0 text-muted text-end"><small>@post.Created.ToString()</small></p>
+                                <p class="mb-0 text-muted text-end">
+                                    <small>@post.Created.ToString()</small>
+                                </p>
                             </div>
                         </div>
+
                         <div class="card-body">
                             <p>@post.Content</p>
+
                             @if (post.Attachment != null)
                             {
-                                <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
+                                <img src="@post.Attachment"
+                                     class="w-100 px-0"
+                                     alt="image post" />
                             }
                         </div>
+
                         <div class="card-footer bg-white">
-                            @if (post.Comments.Count > 0)
+                            @if (post.Comments != null && post.Comments.Count > 0)
                             {
                                 <h5 class="mb-3">Comments</h5>
+
                                 foreach (CommentViewModel commentVm in post.Comments)
                                 {
                                     <div class="d-flex align-items-center mb-3 border-bottom border-1">
-                                        <img src="@commentVm.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @commentVm.UserName" style="width: 50px; height: 50px;">
+                                        <img src="@commentVm.UserProfilePicture"
+                                             class="rounded-circle me-2"
+                                             alt="Foto del usuario @commentVm.UserName"
+                                             style="width: 50px; height: 50px;" />
+
                                         <div>
                                             <strong>@commentVm.UserName</strong>
                                             <p>@commentVm.Content</p>
@@ -77,18 +148,20 @@
                                     </div>
                                 }
                             }
+
                             <div class="pt-0">
                                 <form method="post" asp-controller="Home" asp-action="AddComment">
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                                     <div class="float-end">
-                                        <div>
-                                            <a class="btn btn-primary" asp-controller="Post" asp-action="AddComment" asp-route-postId=@post.Id>
-                                                Comment
-                                            </a>
-                                        </div>
+                                        <a class="btn btn-primary"
+                                           asp-controller="Post"
+                                           asp-action="AddComment"
+                                           asp-route-postId="@post.Id">
+                                            Comment
+                                        </a>
                                     </div>
                                 </form>
-
                             </div>
                         </div>
                     </div>
@@ -98,27 +171,50 @@
     </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade"
+     id="exampleModal"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content card-box-shadow">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add a friend by username</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                    Add a friend by username
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
             </div>
+
             <div class="modal-body pt-0">
-                @if (Model.HasError)
+                @if (Model != null && Model.HasError)
                 {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <p>@Model.Error</p>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close">
+                        </button>
                     </div>
                 }
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <form method="post" asp-controller="Friend" asp-action="AddFriend">
 
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <form method="post" asp-controller="Friend" asp-action="AddFriend">
                     <div class="mb-3">
                         <label asp-for="Username" class="form-label"></label>
-                        <input asp-for="Username" class="form-control me-2" placeholder="Type the username" />
+
+                        <input asp-for="Username"
+                               class="form-control me-2"
+                               placeholder="Type the username" />
+
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
 

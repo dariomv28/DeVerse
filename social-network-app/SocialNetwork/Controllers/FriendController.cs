@@ -30,6 +30,8 @@ namespace SocialNetwork.Controllers
 
             ViewBag.Friends = await _friendService.GetAllFriendViewModel();
             ViewBag.Posts = await _friendService.GetAllFriendPostsViewModel();
+            // Mới thêm 23/5/26 xử lí lời mời kết bạn 34
+            ViewBag.PendingRequests = await _friendService.GetPendingFriendRequests();
 
             return View(new SaveFriendViewModel());
         }
@@ -90,5 +92,16 @@ namespace SocialNetwork.Controllers
             return RedirectToRoute(new { controller = "Friend", action = "Index" });
 
         }
+        // Controller của việc chấp nhận lời mời kết bạn
+        public async Task<IActionResult> AcceptFriendRequest(int id)
+{
+    await _friendService.AcceptFriendRequest(id);
+
+    return RedirectToRoute(new
+    {
+        controller = "Friend",
+        action = "Index"
+    });
+}
     }
 }

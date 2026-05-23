@@ -10,6 +10,7 @@ namespace SocialNetwork.Core.Application.ViewModels.Friend
         public string Username { get; set; }
         public string? UserSenderId { get; set; }
         public string? UserReceptorId { get; set; }
+        public string? Status { get; set; }
         public bool HasError { get; set; }
         public string? Error { get; set; }
     }

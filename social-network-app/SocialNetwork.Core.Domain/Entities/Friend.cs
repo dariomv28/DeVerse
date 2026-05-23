@@ -7,5 +7,8 @@ namespace SocialNetwork.Core.Domain.Entities
         public string UserSenderId { get; set; }
         public string UserReceptorId { get; set; }
         //public DateTime CreatedDate { get; set; }
+        
+        // Trạng thái lời mời: Pending / Accepted
+        public string Status { get; set; }
     }
 }
