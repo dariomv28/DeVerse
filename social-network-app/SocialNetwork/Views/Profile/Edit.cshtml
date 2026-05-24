@@ -8,83 +8,225 @@
 <div class="container mt-5 w-75">
     <div class="card card-box-shadow">
         <div class="row no-gutters px-2">
-            <div class="col-md-3 bg-light rounded" style="border-right: 1px solid #dee2e6;">
-                <ul class="nav flex-column nav-pills mt-3">
-                    <li class="nav-item mb-1">
-                        <a class="nav-link active" href="#">Mi perfil</a>
-                    </li>
-                </ul>
+
+            <!-- LEFT SIDEBAR -->
+            <div class="col-md-3 bg-light rounded d-flex flex-column align-items-center py-4"
+                 style="border-right: 1px solid #dee2e6; min-height: 700px;">
+
+                <!-- AVATAR -->
+                <div class="position-relative">
+
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePicture)
+                        ? "/Images/Users/default-user.png"
+                        : Model.ProfilePicture)"
+                         class="rounded-circle shadow"
+                         width="180"
+                         height="180"
+                         style="object-fit: cover; cursor:pointer;"
+                         data-bs-toggle="modal"
+                         data-bs-target="#avatarModal" />
+
+                    <!-- CAMERA BUTTON -->
+                    <button type="button"
+                            class="btn btn-light rounded-circle shadow position-absolute"
+                            style="bottom: 10px; right: 10px;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#avatarModal">
+
+                        <i class="bi bi-camera-fill"></i>
+                    </button>
+                </div>
+
+                <h5 class="mt-3">
+                    @Model.FirstName @Model.LastName
+                </h5>
+
             </div>
 
+            <!-- RIGHT CONTENT -->
             <div class="col-md-9">
                 <div class="card-body">
+
                     <h1 class="mb-3">Edit Profile</h1>
                     <hr>
+
                     @if (Model.HasError)
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <p>@Model.Error</p>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
                         </div>
                     }
+
                     <div asp-validation-summary="All" class="text-danger"></div>
-                    <form method="post" enctype="multipart/form-data" asp-controller="Profile" asp-action="Edit">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          asp-controller="Profile"
+                          asp-action="Edit">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger"></div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="FirstName" class="form-label"></label>
-                                    <input asp-for="FirstName" class="form-control" />
+                                    <label asp-for="FirstName"
+                                           class="form-label"></label>
+
+                                    <input asp-for="FirstName"
+                                           class="form-control" />
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="LastName" class="form-label"></label>
-                                    <input asp-for="LastName" class="form-control" />
+                                    <label asp-for="LastName"
+                                           class="form-label"></label>
+
+                                    <input asp-for="LastName"
+                                           class="form-control" />
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
+
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" class="form-control" />
+                                    <label asp-for="Email"
+                                           class="form-label"></label>
+
+                                    <input asp-for="Email"
+                                           class="form-control" />
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="Phone" class="form-label"></label>
-                                    <input asp-for="Phone" type="tel" class="form-control" />
+                                    <label asp-for="Phone"
+                                           class="form-label"></label>
+
+                                    <input asp-for="Phone"
+                                           type="tel"
+                                           class="form-control" />
                                 </div>
                             </div>
+
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="File" class="form-label"></label>
-                            <input asp-for="File" class="form-control" />
-                        </div>
+
+                        <!-- HIDDEN FILE INPUT -->
+                        <input asp-for="File"
+                               type="file"
+                               class="d-none"
+                               id="avatarInput" />
+
                         <div class="row">
+
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="Password" class="form-label"></label>
-                                    <input asp-for="Password" class="form-control" />
+                                    <label asp-for="Password"
+                                           class="form-label"></label>
+
+                                    <input asp-for="Password"
+                                           class="form-control" />
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label asp-for="ConfirmPassword" class="form-label"></label>
-                                    <input asp-for="ConfirmPassword" class="form-control" />
+                                    <label asp-for="ConfirmPassword"
+                                           class="form-label"></label>
+
+                                    <input asp-for="ConfirmPassword"
+                                           class="form-control" />
                                 </div>
                             </div>
+
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="submit" class="btn btn-primary w-50">Submit</button>
+                            <button type="submit"
+                                    class="btn btn-primary w-50">
+                                Submit
+                            </button>
                         </div>
+
                     </form>
+
                 </div>
             </div>
 
         </div>
     </div>
 </div>
+
+<!-- AVATAR MODAL -->
+<div class="modal fade"
+     id="avatarModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content bg-dark text-white">
+
+            <div class="modal-header border-secondary">
+                <h4 class="modal-title">
+                    Ảnh hồ sơ
+                </h4>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePicture)
+                    ? "/Images/Users/default-user.png"
+                    : Model.ProfilePicture)"
+                     class="rounded-circle"
+                     width="350"
+                     height="350"
+                     style="object-fit: cover;" />
+
+            </div>
+
+            <div class="modal-footer justify-content-between">
+
+                <button type="button"
+                        class="btn btn-outline-light"
+                        onclick="document.getElementById('avatarInput').click()">
+
+                    Cập nhật ảnh
+                </button>
+
+                <form method = "post" asp-controller="Profile" asp-action="DeleteProfilePicture">
+                    <button type="submit" class="btn btn-danger">
+                        Xóa ảnh
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        const avatarInput = document.getElementById("avatarInput");
+
+        avatarInput.addEventListener("change", function () {
+
+            if (avatarInput.files.length > 0) {
+
+                document.forms[0].submit();
+            }
+        });
+    </script>
+}

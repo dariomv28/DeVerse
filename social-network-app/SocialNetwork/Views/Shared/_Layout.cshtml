@@ -21,6 +21,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <header>
@@ -46,7 +48,7 @@
                             <a class="nav-link dropdown-toggle text-decoration-none text-black" href="#" id="userDropdown" role="button"
                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="d-none d-lg-inline">@User.Username</span>
-                                <img src="@User.ProfilePicture" class="rounded-circle" alt="Profile picture"
+                                <img src="@(string.IsNullOrEmpty(User.ProfilePicture)? "/Images/Users/default-user.png" : User.ProfilePicture)" class="rounded-circle" alt="Profile picture"
                                      style="width: 25px; height: 25px; margin-left 10px;">
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">

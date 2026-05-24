@@ -34,7 +34,7 @@ namespace SocialNetwork.Core.Application.Helpers
                 file.CopyTo(stream);
             }
 
-            if (isEditMode)
+            if (isEditMode && !string.IsNullOrEmpty(imagePath))
             {
                 string[] oldImagePart = imagePath.Split("/");
                 string oldImageName = oldImagePart[^1];
