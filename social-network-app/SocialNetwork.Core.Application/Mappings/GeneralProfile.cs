@@ -5,6 +5,7 @@ using SocialNetwork.Core.Application.ViewModels.Friend;
 using SocialNetwork.Core.Application.ViewModels.Post;
 using SocialNetwork.Core.Application.ViewModels.User;
 using SocialNetwork.Core.Domain.Entities;
+using SocialNetwork.Core.Application.ViewModels.Message;
 
 namespace SocialNetwork.Core.Application.Mappings
 {
@@ -96,7 +97,19 @@ namespace SocialNetwork.Core.Application.Mappings
 
             #endregion
 
-            #region 
+            #region MessageProfile
+            CreateMap<Message, SaveMessageViewModel>()
+    .ReverseMap()
+    .ForMember(x => x.CreatedBy, opt => opt.Ignore())
+    .ForMember(x => x.LastModifiedBy, opt => opt.Ignore())
+    .ForMember(x => x.LastModified, opt => opt.Ignore());
+
+CreateMap<Message, MessageViewModel>()
+    .ForMember(x => x.IsMine, opt => opt.Ignore())
+    .ReverseMap()
+    .ForMember(x => x.CreatedBy, opt => opt.Ignore())
+    .ForMember(x => x.LastModifiedBy, opt => opt.Ignore())
+    .ForMember(x => x.LastModified, opt => opt.Ignore());
             #endregion
         }
     }

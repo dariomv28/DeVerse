@@ -12,6 +12,7 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reply> Replies { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -43,6 +44,7 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Friend>().ToTable("Friends");
             modelBuilder.Entity<Comment>().ToTable("Comments");
             modelBuilder.Entity<Reply>().ToTable("Replies");
+            modelBuilder.Entity<Message>().ToTable("Messages");
             #endregion
 
             #region "primary keys"
@@ -50,6 +52,8 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Friend>().HasKey(f => f.Id);
             modelBuilder.Entity<Comment>().HasKey(c => c.Id);
             modelBuilder.Entity<Reply>().HasKey(r => r.Id);
+            modelBuilder.Entity<Message>().HasKey(m => m.Id);
+
             #endregion
 
             #region relationships
@@ -87,7 +91,19 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
                 Property(f => f.UserReceptorId)
                 .IsRequired();
             #endregion
+            #region messages
+    modelBuilder.Entity<Message>()
+        .Property(m => m.SenderId)
+        .IsRequired();
 
+    modelBuilder.Entity<Message>()
+        .Property(m => m.ReceiverId)
+        .IsRequired();
+
+    modelBuilder.Entity<Message>()
+        .Property(m => m.Content)
+        .IsRequired();
+    #endregion
             #region comments
             modelBuilder.Entity<Comment>().
             Property(c => c.UserId)

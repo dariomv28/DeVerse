@@ -3,6 +3,7 @@ using SocialNetwork.Core.Application.Interfaces.Services;
 using SocialNetwork.Core.Application.Services;
 using System.Reflection;
 
+
 namespace SocialNetwork.Core.Application
 {
     public static class ServiceRegistration
@@ -16,7 +17,8 @@ namespace SocialNetwork.Core.Application
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IFriendService, FriendService>();
             services.AddTransient<ICommentService, CommentService>();
-            services.AddTransient<IReplyService, ReplyService>();
+            services.AddTransient<IMessageService, MessageService>();
+            
             #endregion
         }
     }

@@ -3,6 +3,7 @@ using SocialNetwork.Infrastructure.Persistence;
 using SocialNetwork.Infrastructure.Identity;
 using SocialNetwork.Infrastructure.Shared;
 using SocialNetwork.Middlewares;
+using SocialNetwork.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services.AddApplicationLayer();
 builder.Services.AddScoped<LoginAuthorize>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<ValidateUserSession, ValidateUserSession>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -41,4 +43,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=User}/{action=Login}/{id?}");
 
+app.MapHub<ChatHub>("/chatHub");
 app.Run();
