@@ -12,7 +12,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SocialNetwork</title>
+    <title>@ViewData["Title"] - FookBace</title>
+    <link rel="icon" type="image/png" href="~/fookbace.png" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SocialNetwork.styles.css" asp-append-version="true" />
@@ -28,7 +29,10 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold fs-4" asp-area="" asp-controller="@(User != null ? "Home" : "User")" asp-action="@(User != null ? "Index" : "Login")">SocialNetwork</a>
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" asp-area="" asp-controller="@(User != null ? "Home" : "User")" asp-action="@(User != null ? "Index" : "Login")">
+                    <img src="~/fookbace.png" asp-append-version="true" alt="FookBace logo" class="brand-logo" />
+                    <span>FookBace</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -76,7 +80,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - SocialNetwork - Made by <a href="https://github.com/AleGxrcia" target="_blank">AleGxrcia</a>
+            &copy; 2026 - FookBace - Made by <a href="https://github.com/dariomv28" target="_blank">Dang</a> and <a href="https://github.com/BaoAPCS2" target="_blank">Bao</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
