@@ -3,137 +3,243 @@
 @using SocialNetwork.Core.Application.Helpers;
 @using SocialNetwork.Core.Application.ViewModels.Comment
 @using SocialNetwork.Core.Application.ViewModels.Post
+@using SocialNetwork.Core.Application.ViewModels.Message
+@using SocialNetwork.Core.Application.ViewModels.Friend
+
 @inject IHttpContextAccessor httpContextAccessor;
 @model SavePostViewModel
+
 @{
     ViewData["Title"] = "Home page";
+
     var User = httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
     bool editMode = Model.Id == 0 ? false : true;
+
     List<PostViewModel> posts = ViewBag.Posts;
+    List<FriendViewModel> friends = ViewBag.Friends;
 }
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-6 offset-3">
-            <div class="card card-box-shadow mt-3">
-                <div class="card-body">
-                    <!-- Button modal -->
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <img src="@User.ProfilePicture" class="rounded-circle" alt="Foto del usuario @User.Username"
-                                 style="width: 50px; height: 50px; margin-right: 10px;">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-secondary-custom w-100" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                <span class="d-flex justify-content-start">What's on your mind? Alejandro</span>
-                            </button>
+
+        <!-- LEFT: HOME / POSTS -->
+        <div class="col-9">
+            <div class="row">
+                <div class="col-8 offset-2">
+                    <div class="card card-box-shadow mt-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img src="@User.ProfilePicture"
+                                         class="rounded-circle"
+                                         alt="Foto del usuario @User.Username"
+                                         style="width: 50px; height: 50px; margin-right: 10px;">
+                                </div>
+
+                                <div class="col">
+                                    <button type="button"
+                                            class="btn btn-secondary-custom w-100"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#exampleModal">
+                                        <span class="d-flex justify-content-start">
+                                            What's on your mind? @User.Username
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content card-box-shadow">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create post</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" enctype="multipart/form-data" asp-controller="Post" asp-action="@(editMode ? "Edit":"CreatePost")">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="Created" />
 
-                        <div class="mb-3">
-                            <textarea asp-for="Content" class="form-control" placeholder="What's on your mind? "></textarea>
-                            <span asp-validation-for="Content" class="text-danger"></span>
+            <!-- Modal Create Post -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content card-box-shadow">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Create post</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="File" class="form-label"></label>
-                            <input asp-for="File" class="form-control" />
-                            <span asp-validation-for="File" class="text-danger"></span>
-                        </div>
+                        <div class="modal-body">
+                            <form method="post"
+                                  enctype="multipart/form-data"
+                                  asp-controller="Post"
+                                  asp-action="@(editMode ? "Edit" : "CreatePost")">
 
-                        <div class="pt-1">
-                            <button class="btn btn-primary w-100">Post</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        @if (posts != null && posts.Count > 0)
-        {
-            @foreach (PostViewModel post in posts)
-            {
-                <div class="col-6 offset-3">
-                    <div class="card mt-3 card-box-shadow">
-                        <div class="card-header bg-white d-flex align-items-center">
-                            <img src="@post.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @post.UserName" style="width: 50px; height: 50px;">
-                            <div>
-                                <strong>@post.UserName</strong>
-                                <p class="mb-0 text-muted text-end"><small>@post.Created.ToString()</small></p>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p>@post.Content</p>
-                            @if (post.Attachment != null)
-                            {
-                                <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
-                            }
-                        </div>
-                        <div class="px-3 py-2">
-                            <form method="post" asp-controller="Home" asp-action="AddComment">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                                 <input type="hidden" asp-for="Id" />
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <a class="btn btn-secondary" asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                        <a class="btn btn-danger" asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
-                                    </div>
-                                    <div>
-                                        <a class="btn btn-primary" asp-controller="Post" asp-action="AddComment" asp-route-postId=@post.Id>
-                                            Comment
-                                        </a>
-                                    </div>
+                                <input type="hidden" asp-for="Created" />
+
+                                <div class="mb-3">
+                                    <textarea asp-for="Content"
+                                              class="form-control"
+                                              placeholder="What's on your mind?"></textarea>
+                                    <span asp-validation-for="Content" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="File" class="form-label"></label>
+                                    <input asp-for="File" class="form-control" />
+                                    <span asp-validation-for="File" class="text-danger"></span>
+                                </div>
+
+                                <div class="pt-1">
+                                    <button class="btn btn-primary w-100">Post</button>
                                 </div>
                             </form>
                         </div>
-                        <div class="card-footer bg-white mt-3">
-                            @if (post.Comments.Count > 0)
-                            {
-                                <h5 class="mb-3">Comments</h5>
-                                foreach (CommentViewModel commentVm in post.Comments)
-                                {
-                                    <div class="d-flex align-items-center mb-3 border-1">
-                                        <img src="@commentVm.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @commentVm.UserName" style="width: 50px; height: 50px;">
-                                        <div>
-                                            <strong>@commentVm.UserName</strong>
-                                            <p>@commentVm.Content</p>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
                     </div>
                 </div>
-            }
-        }
+            </div>
+
+            <!-- Posts -->
+            <div class="row">
+                @if (posts != null && posts.Count > 0)
+                {
+                    foreach (PostViewModel post in posts)
+                    {
+                        <div class="col-8 offset-2">
+                            <div class="card mt-3 card-box-shadow">
+                                <div class="card-header bg-white d-flex align-items-center">
+                                    <img src="@post.UserProfilePicture"
+                                         class="rounded-circle me-2"
+                                         style="width: 50px; height: 50px;">
+
+                                    <div>
+                                        <strong>@post.UserName</strong>
+                                        <p class="mb-0 text-muted text-end">
+                                            <small>@post.Created.ToString()</small>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <p>@post.Content</p>
+
+                                    @if (post.Attachment != null)
+                                    {
+                                        <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
+                                    }
+                                </div>
+
+                                <div class="px-3 py-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a class="btn btn-secondary"
+                                               asp-controller="Post"
+                                               asp-action="Edit"
+                                               asp-route-id="@post.Id">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+
+                                            <a class="btn btn-danger"
+                                               asp-controller="Post"
+                                               asp-action="Delete"
+                                               asp-route-id="@post.Id">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        </div>
+
+                                        <div>
+                                            <a class="btn btn-primary"
+                                               asp-controller="Post"
+                                               asp-action="AddComment"
+                                               asp-route-postId="@post.Id">
+                                                Comment
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer bg-white mt-3">
+                                    @if (post.Comments.Count > 0)
+                                    {
+                                        <h5 class="mb-3">Comments</h5>
+
+                                        foreach (CommentViewModel commentVm in post.Comments)
+                                        {
+                                            <div class="d-flex align-items-center mb-3 border-1">
+                                                <img src="@commentVm.UserProfilePicture"
+                                                     class="rounded-circle me-2"
+                                                     style="width: 50px; height: 50px;">
+
+                                                <div>
+                                                    <strong>@commentVm.UserName</strong>
+                                                    <p>@commentVm.Content</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- RIGHT: MESSAGES -->
+        <div class="col-3">
+            <div class="card card-box-shadow mt-3 position-sticky" style="top: 20px;">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Messages</h4>
+                </div>
+
+                <div class="card-body">
+                    @if (friends != null && friends.Count > 0)
+                    {
+                        foreach (FriendViewModel friend in friends)
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-primary w-100 mb-2 text-start"
+                                    onclick="openChat('@friend.Id', '@friend.Username')">
+                                @friend.Username
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No friends to message</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card card-box-shadow mt-3" id="chatBox" style="display:none;">
+                <div class="card-header bg-white">
+                    <h5 id="chatTitle" class="mb-0">Chat</h5>
+                </div>
+
+                <div class="card-body" id="messagesBox" style="height:300px; overflow-y:auto;">
+                </div>
+
+                <div class="card-footer bg-white">
+                    <input type="hidden" id="receiverId" />
+                    <input type="hidden" id="receiverName" />
+
+                    <div class="input-group">
+                        <input type="text"
+                               id="messageContent"
+                               class="form-control"
+                               placeholder="Type message..." />
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                onclick="sendMessage()">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
         $(document).ready(function () {
             var editMode = @Html.Raw(editMode.ToString().ToLower());
@@ -142,5 +248,60 @@
                 $('#exampleModal').modal('show');
             }
         });
+
+        function openChat(friendId, username) {
+            document.getElementById("chatBox").style.display = "block";
+            document.getElementById("receiverId").value = friendId;
+            document.getElementById("receiverName").value = username;
+            document.getElementById("chatTitle").innerText = "Chat with " + username;
+
+            fetch(`/Home/GetConversation?friendId=${friendId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    const box = document.getElementById("messagesBox");
+                    box.innerHTML = "";
+
+                    messages.forEach(message => {
+                        const div = document.createElement("div");
+
+                        if (message.isMine) {
+                            div.className = "text-end mb-2";
+                            div.innerHTML = `<span class="badge bg-primary p-2">${message.content}</span>`;
+                        } else {
+                            div.className = "text-start mb-2";
+                            div.innerHTML = `<span class="badge bg-secondary p-2">${message.content}</span>`;
+                        }
+
+                        box.appendChild(div);
+                    });
+
+                    box.scrollTop = box.scrollHeight;
+                });
+        }
+
+        function sendMessage() {
+            const receiverId = document.getElementById("receiverId").value;
+            const username = document.getElementById("receiverName").value;
+            const contentInput = document.getElementById("messageContent");
+            const content = contentInput.value;
+
+            if (!content.trim()) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("receiverId", receiverId);
+            formData.append("content", content);
+
+            fetch("/Home/SendMessage", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    contentInput.value = "";
+                    openChat(receiverId, username);
+                }
+            });
+        }
     </script>
 }

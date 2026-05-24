@@ -29,7 +29,8 @@ namespace SocialNetwork.Infrastructure.Persistence
             services.AddTransient<IPostRepository, PostRepository>();
             services.AddTransient<ICommentRepository, CommentRepository>();
             services.AddTransient<IReplyRepository, ReplyRepository>();
-            services.AddTransient<IFriendRepository, FriendRepository>();            
+            services.AddTransient<IFriendRepository, FriendRepository>();
+            services.AddTransient<IMessageRepository, MessageRepository>();           
             #endregion
         }
     }
