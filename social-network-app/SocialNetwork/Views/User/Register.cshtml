@@ -2,11 +2,11 @@
 @model SaveUserViewModel
 
 @{
-    ViewData["Title"] = "Registrate";
+    ViewData["Title"] = "Đăng ký";
 }
 
 <div class="container mt-5 w-50">
-    <h1 class="mb-3">Registrar Usuario</h1>
+    <h1 class="mb-3">Đăng ký tài khoản</h1>
     <div class="card card-box-shadow">
         <div class="card-body">
             @if (Model.HasError)
@@ -82,12 +82,12 @@
                 </div>
 
                 <div class="text-center mb-3">
-                    <button type="submit" class="btn btn-success w-50">Registrarte</button>
+                    <button type="submit" class="btn btn-success w-50">Đăng ký</button>
                 </div>
 
                 <div class="text-center">
-                    ¿Tienes una cuenta?
-                    <a asp-action="Login" class="link-primary">Inicia sesión</a>
+                    Bạn đã có tài khoản?
+                    <a asp-action="Login" class="link-primary">Đăng nhập</a>
                 </div>
             </form>
         </div>
