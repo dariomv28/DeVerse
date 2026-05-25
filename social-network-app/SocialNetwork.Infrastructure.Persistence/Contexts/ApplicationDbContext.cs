@@ -92,17 +92,17 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
                 .IsRequired();
             #endregion
             #region messages
-    modelBuilder.Entity<Message>()
-        .Property(m => m.SenderId)
-        .IsRequired();
+modelBuilder.Entity<Message>()
+    .Property(m => m.SenderId)
+    .IsRequired();
 
-    modelBuilder.Entity<Message>()
-        .Property(m => m.ReceiverId)
-        .IsRequired();
+modelBuilder.Entity<Message>()
+    .Property(m => m.ReceiverId)
+    .IsRequired();
 
-    modelBuilder.Entity<Message>()
-        .Property(m => m.Content)
-        .IsRequired();
+modelBuilder.Entity<Message>()
+    .Property(m => m.Content)
+    .IsRequired();
     #endregion
             #region comments
             modelBuilder.Entity<Comment>().

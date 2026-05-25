@@ -33,7 +33,7 @@
                                     <a asp-controller="Profile"
                                        asp-action="Index"
                                        asp-route-id="@User.Id">
-                                        <img src="@(string.IsNullOrEmpty(User.ProfilePicture)? "/Images/Users/default-user.png" : User.ProfilePicture)"
+                                        <img src="@(string.IsNullOrEmpty(User.ProfilePicture) ? "/Images/Users/default-user.png" : User.ProfilePicture)"
                                              class="rounded-circle"
                                              alt="Foto del usuario @User.Username"
                                              style="width: 50px; height: 50px; margin-right: 10px;">
@@ -164,6 +164,8 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
     <script>
         $(document).ready(function () {
             var editMode = @Html.Raw(editMode.ToString().ToLower());
@@ -173,59 +175,116 @@
             }
         });
 
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        connection.on("ReceiveMessage", function (message) {
+
+            const receiverId = document.getElementById("receiverId").value;
+
+            if (
+                message.senderId !== receiverId &&
+                message.receiverId !== receiverId
+            ) {
+                return;
+            }
+
+            appendMessage(
+                message.content,
+                message.receiverId === receiverId,
+                message.created
+            );
+        });
+
+        connection.start()
+            .then(function () {
+                console.log("SignalR connected");
+            })
+            .catch(function (err) {
+                console.error("SignalR connection error:", err.toString());
+            });
+
         function openChat(friendId, username) {
+
             document.getElementById("chatBox").style.display = "block";
             document.getElementById("receiverId").value = friendId;
             document.getElementById("receiverName").value = username;
-            document.getElementById("chatTitle").innerText = "Chat with " + username;
+            document.getElementById("chatTitle").innerText =
+                "Chat with " + username;
 
             fetch(`/Home/GetConversation?friendId=${friendId}`)
                 .then(response => response.json())
                 .then(messages => {
+
                     const box = document.getElementById("messagesBox");
+
                     box.innerHTML = "";
 
                     messages.forEach(message => {
-                        const div = document.createElement("div");
 
-                        if (message.isMine) {
-                            div.className = "text-end mb-2";
-                            div.innerHTML = `<span class="badge bg-primary p-2">${message.content}</span>`;
-                        } else {
-                            div.className = "text-start mb-2";
-                            div.innerHTML = `<span class="badge bg-secondary p-2">${message.content}</span>`;
-                        }
+                        appendMessage(
+                            message.content,
+                            message.isMine,
+                            message.created
+                        );
 
-                        box.appendChild(div);
                     });
 
                     box.scrollTop = box.scrollHeight;
+                })
+                .catch(function (err) {
+                    console.error("Get conversation error:", err);
                 });
         }
 
         function sendMessage() {
+
             const receiverId = document.getElementById("receiverId").value;
-            const username = document.getElementById("receiverName").value;
             const contentInput = document.getElementById("messageContent");
             const content = contentInput.value;
 
-            if (!content.trim()) {
+            if (!receiverId || !content.trim()) {
                 return;
             }
 
-            const formData = new FormData();
-            formData.append("receiverId", receiverId);
-            formData.append("content", content);
+            connection.invoke("SendMessage", receiverId, content)
+                .catch(function (err) {
+                    console.error("Send message error:", err.toString());
+                });
 
-            fetch("/Home/SendMessage", {
-                method: "POST",
-                body: formData
-            }).then(response => {
-                if (response.ok) {
-                    contentInput.value = "";
-                    openChat(receiverId, username);
-                }
-            });
+            contentInput.value = "";
+        }
+
+        function appendMessage(content, isMine, created) {
+            const box = document.getElementById("messagesBox");
+            const div = document.createElement("div");
+
+            let createdText = "";
+
+            if (created) {
+                const date = new Date(created);
+                createdText = date.toLocaleString("vi-VN");
+            }
+
+            if (isMine) {
+                div.className = "text-end mb-2";
+                div.innerHTML = `
+                    <span class="badge bg-primary p-2">${content}</span>
+                    <br/>
+                    <small class="text-muted">${createdText}</small>
+                `;
+            } else {
+                div.className = "text-start mb-2";
+                div.innerHTML = `
+                    <span class="badge bg-secondary p-2">${content}</span>
+                    <br/>
+                    <small class="text-muted">${createdText}</small>
+                `;
+            }
+
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
     </script>
 }
