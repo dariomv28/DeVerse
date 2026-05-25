@@ -11,12 +11,47 @@ namespace SocialNetwork.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         // private readonly AuthenticationResponse userViewModel;
         private readonly IUserService _userService;
+        private readonly IPostService _postService;
 
-        public ProfileController(IHttpContextAccessor httpContextAccessor, IUserService userService)
+        public ProfileController(
+            IHttpContextAccessor httpContextAccessor,
+            IUserService userService,
+            IPostService postService)
         {
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
+            _postService = postService;
             // userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+        }
+
+        public async Task<IActionResult> Index(string? id)
+        {
+            var loggedUser = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+            if (loggedUser == null)
+            {
+                return RedirectToRoute(new
+                {
+                    controller = "User",
+                    action = "Login"
+                });
+            }
+
+            string targetUserId = string.IsNullOrWhiteSpace(id) ? loggedUser.Id : id;
+            SaveUserViewModel profileUser = await _userService.GetByIdAsync(targetUserId);
+
+            if (profileUser.HasError)
+            {
+                return RedirectToRoute(new
+                {
+                    controller = "Home",
+                    action = "Index"
+                });
+            }
+
+            ViewBag.IsCurrentUser = loggedUser.Id == targetUserId;
+            ViewBag.Posts = await _postService.GetPostsByUserViewModelWithIncludes(targetUserId);
+
+            return View(profileUser);
         }
 
         public async Task<IActionResult> Edit()

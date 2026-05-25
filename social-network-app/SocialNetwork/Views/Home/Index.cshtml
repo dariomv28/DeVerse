@@ -30,10 +30,14 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-auto">
-                                    <img src="@(string.IsNullOrEmpty(User.ProfilePicture)? "/Images/Users/default-user.png" : User.ProfilePicture)"
-                                         class="rounded-circle"
-                                         alt="Foto del usuario @User.Username"
-                                         style="width: 50px; height: 50px; margin-right: 10px;">
+                                    <a asp-controller="Profile"
+                                       asp-action="Index"
+                                       asp-route-id="@User.Id">
+                                        <img src="@(string.IsNullOrEmpty(User.ProfilePicture)? "/Images/Users/default-user.png" : User.ProfilePicture)"
+                                             class="rounded-circle"
+                                             alt="Foto del usuario @User.Username"
+                                             style="width: 50px; height: 50px; margin-right: 10px;">
+                                    </a>
                                 </div>
 
                                 <div class="col">
@@ -103,12 +107,22 @@
                         <div class="col-8 offset-2">
                             <div class="card mt-3 card-box-shadow">
                                 <div class="card-header bg-white d-flex align-items-center">
-                                    <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
-                                         class="rounded-circle me-2"
-                                         style="width: 50px; height: 50px;">
+                                    <a asp-controller="Profile"
+                                       asp-action="Index"
+                                       asp-route-id="@post.UserId">
+                                        <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
+                                             class="rounded-circle me-2"
+                                             alt="Foto del usuario @post.UserName"
+                                             style="width: 50px; height: 50px;">
+                                    </a>
 
                                     <div>
-                                        <strong>@post.UserName</strong>
+                                        <a asp-controller="Profile"
+                                           asp-action="Index"
+                                           asp-route-id="@post.UserId"
+                                           class="text-decoration-none text-dark">
+                                            <strong>@post.UserName</strong>
+                                        </a>
                                         <p class="mb-0 text-muted text-end">
                                             <small>@post.Created.ToString()</small>
                                         </p>
@@ -161,12 +175,22 @@
                                         foreach (CommentViewModel commentVm in post.Comments)
                                         {
                                             <div class="d-flex align-items-center mb-3 border-1">
-                                                <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture)? "/Images/Users/default-user.png" : commentVm.UserProfilePicture)"
-                                                     class="rounded-circle me-2"
-                                                     style="width: 50px; height: 50px;">
+                                                <a asp-controller="Profile"
+                                                   asp-action="Index"
+                                                   asp-route-id="@commentVm.UserId">
+                                                    <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture)? "/Images/Users/default-user.png" : commentVm.UserProfilePicture)"
+                                                         class="rounded-circle me-2"
+                                                         alt="Foto del usuario @commentVm.UserName"
+                                                         style="width: 50px; height: 50px;">
+                                                </a>
 
                                                 <div>
-                                                    <strong>@commentVm.UserName</strong>
+                                                    <a asp-controller="Profile"
+                                                       asp-action="Index"
+                                                       asp-route-id="@commentVm.UserId"
+                                                       class="text-decoration-none text-dark">
+                                                        <strong>@commentVm.UserName</strong>
+                                                    </a>
                                                     <p>@commentVm.Content</p>
                                                 </div>
                                             </div>
