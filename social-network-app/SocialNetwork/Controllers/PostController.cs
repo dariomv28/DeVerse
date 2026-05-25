@@ -118,21 +118,37 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddComment(SaveCommentViewModel vm)
+        public async Task<IActionResult> AddComment(int postId, string? content, string? returnUrl)
         {
             if (!_validateUserSession.HasUser())
             {
                 return RedirectToRoute(new { controller = "User", action = "Login" });
             }
 
-            if (ModelState.IsValid)
+            if (postId <= 0 || string.IsNullOrWhiteSpace(content))
             {
-                return View(vm);
+                return RedirectToSafeReturnUrl(returnUrl);
             }
 
-            SaveCommentViewModel commentVm = await _commentService.Add(vm);
+            SaveCommentViewModel vm = new()
+            {
+                PostId = postId,
+                Content = content.Trim()
+            };
 
-            return RedirectToRoute(new { controller = "Friend", action = "Index" });
+            await _commentService.Add(vm);
+
+            return RedirectToSafeReturnUrl(returnUrl);
+        }
+
+        private IActionResult RedirectToSafeReturnUrl(string? returnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToRoute(new { controller = "Home", action = "Index" });
         }
 
         public static string UploadFile(IFormFile file, int id, bool isEditMode = false, string imagePath = "")

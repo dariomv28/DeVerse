@@ -78,72 +78,19 @@
     </div>
 
     <div class="mt-4" id="posts">
-        <div class="card card-box-shadow">
-            <div class="card-body">
-                <h4 class="fw-bold mb-4">Posts</h4>
-
-                @if (posts.Count > 0)
-                {
-                    foreach (PostViewModel post in posts)
-                    {
-                        <div class="card mb-3">
-                            <div class="card-header bg-white">
-                                <p class="mb-0 text-muted">
-                                    <small>@post.Created</small>
-                                </p>
-                            </div>
-
-                            <div class="card-body">
-                                <p>@post.Content</p>
-
-                                @if (!string.IsNullOrEmpty(post.Attachment))
-                                {
-                                    <img src="@post.Attachment"
-                                         class="img-fluid rounded"
-                                         alt="Post image" />
-                                }
-                            </div>
-
-                            @if (post.Comments != null && post.Comments.Count > 0)
-                            {
-                                <div class="card-footer bg-white">
-                                    <h6 class="fw-semibold mb-3">Comments</h6>
-
-                                    @foreach (CommentViewModel comment in post.Comments)
-                                    {
-                                        <div class="d-flex align-items-center mb-2">
-                                            <a asp-controller="Profile"
-                                               asp-action="Index"
-                                               asp-route-id="@comment.UserId">
-                                                <img src="@(string.IsNullOrEmpty(comment.UserProfilePicture) ? "/Images/Users/default-user.png" : comment.UserProfilePicture)"
-                                                     class="rounded-circle me-2"
-                                                     width="40"
-                                                     height="40"
-                                                     alt="Profile picture of @comment.UserName"
-                                                     style="object-fit: cover;" />
-                                            </a>
-
-                                            <div>
-                                                <a asp-controller="Profile"
-                                                   asp-action="Index"
-                                                   asp-route-id="@comment.UserId"
-                                                   class="text-decoration-none text-dark">
-                                                    <strong>@comment.UserName</strong>
-                                                </a>
-                                                <p class="mb-0">@comment.Content</p>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted mb-0">This user has no posts yet.</p>
-                }
+        @if (posts.Count > 0)
+        {
+            <div class="row">
+                <partial name="_PostCards" model="posts" />
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="card card-box-shadow">
+                <div class="card-body">
+                    <p class="text-muted mb-0">This user has no posts yet.</p>
+                </div>
+            </div>
+        }
     </div>
 </div>

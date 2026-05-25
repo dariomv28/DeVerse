@@ -1,0 +1,127 @@
+@using SocialNetwork.Core.Application.ViewModels.Comment
+@using SocialNetwork.Core.Application.ViewModels.Post
+@model List<PostViewModel>
+
+@if (Model != null && Model.Count > 0)
+{
+    string returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString;
+
+    foreach (PostViewModel post in Model)
+    {
+        string commentFormId = $"comment-form-{post.Id}";
+
+        <div class="col-8 offset-2">
+            <div class="card mt-3 card-box-shadow">
+                <div class="card-header bg-white d-flex align-items-center">
+                    <a asp-controller="Profile"
+                       asp-action="Index"
+                       asp-route-id="@post.UserId">
+                        <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
+                             class="rounded-circle me-2"
+                             alt="Foto del usuario @post.UserName"
+                             style="width: 50px; height: 50px;">
+                    </a>
+
+                    <div>
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           asp-route-id="@post.UserId"
+                           class="text-decoration-none text-dark">
+                            <strong>@post.UserName</strong>
+                        </a>
+                        <p class="mb-0 text-muted text-end">
+                            <small>@post.Created.ToString()</small>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <p>@post.Content</p>
+
+                    @if (post.Attachment != null)
+                    {
+                        <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
+                    }
+                </div>
+
+                <div class="px-3 py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a class="btn btn-secondary"
+                               asp-controller="Post"
+                               asp-action="Edit"
+                               asp-route-id="@post.Id">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <a class="btn btn-danger"
+                               asp-controller="Post"
+                               asp-action="Delete"
+                               asp-route-id="@post.Id">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </div>
+
+                        <div>
+                            <button class="btn btn-primary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@commentFormId"
+                                    aria-expanded="false"
+                                    aria-controls="@commentFormId">
+                                Comment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white mt-3">
+                    @if (post.Comments != null && post.Comments.Count > 0)
+                    {
+                        <h5 class="mb-3">Comments</h5>
+
+                        foreach (CommentViewModel commentVm in post.Comments)
+                        {
+                            <div class="d-flex align-items-center mb-3 border-1">
+                                <a asp-controller="Profile"
+                                   asp-action="Index"
+                                   asp-route-id="@commentVm.UserId">
+                                    <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture)? "/Images/Users/default-user.png" : commentVm.UserProfilePicture)"
+                                         class="rounded-circle me-2"
+                                         alt="Foto del usuario @commentVm.UserName"
+                                         style="width: 50px; height: 50px;">
+                                </a>
+
+                                <div>
+                                    <a asp-controller="Profile"
+                                       asp-action="Index"
+                                       asp-route-id="@commentVm.UserId"
+                                       class="text-decoration-none text-dark">
+                                        <strong>@commentVm.UserName</strong>
+                                    </a>
+                                    <p>@commentVm.Content</p>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    <div class="collapse @(post.Comments == null || post.Comments.Count == 0 ? "mt-0" : "mt-3")" id="@commentFormId">
+                        <form method="post" asp-controller="Post" asp-action="AddComment">
+                            <input type="hidden" name="PostId" value="@post.Id" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                            <div class="input-group">
+                                <input type="text"
+                                       name="Content"
+                                       class="form-control"
+                                       placeholder="Write a comment..."
+                                       autocomplete="off" />
+                                <button type="submit" class="btn btn-primary">Post</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

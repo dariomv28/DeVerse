@@ -10,6 +10,7 @@
     List<FriendViewModel> friends = ViewBag.Friends;
     List<PostViewModel> posts = ViewBag.Posts;
     List<FriendViewModel> pendingRequests = ViewBag.PendingRequests;
+    string returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString;
 }
 
 <div class="container-fluid">
@@ -130,6 +131,8 @@
             {
                 @foreach (PostViewModel post in posts)
                 {
+                    string commentFormId = $"comment-form-{post.Id}";
+
                     <div class="card mt-3 card-box-shadow">
                         <div class="card-header bg-white d-flex align-items-center">
                             <a asp-controller="Profile"
@@ -196,18 +199,32 @@
                             }
 
                             <div class="pt-0">
-                                <form method="post" asp-controller="Home" asp-action="AddComment">
-                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-primary"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#@commentFormId"
+                                            aria-expanded="false"
+                                            aria-controls="@commentFormId">
+                                        Comment
+                                    </button>
+                                </div>
 
-                                    <div class="float-end">
-                                        <a class="btn btn-primary"
-                                           asp-controller="Post"
-                                           asp-action="AddComment"
-                                           asp-route-postId="@post.Id">
-                                            Comment
-                                        </a>
-                                    </div>
-                                </form>
+                                <div class="collapse mt-3" id="@commentFormId">
+                                    <form method="post" asp-controller="Post" asp-action="AddComment">
+                                        <input type="hidden" name="PostId" value="@post.Id" />
+                                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   name="Content"
+                                                   class="form-control"
+                                                   placeholder="Write a comment..."
+                                                   autocomplete="off" />
+                                            <button type="submit" class="btn btn-primary">Post</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
