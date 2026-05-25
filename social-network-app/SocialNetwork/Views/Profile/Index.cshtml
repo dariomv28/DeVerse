@@ -1,0 +1,149 @@
+@using SocialNetwork.Core.Application.ViewModels.Comment
+@using SocialNetwork.Core.Application.ViewModels.Post
+@using SocialNetwork.Core.Application.ViewModels.User
+@model SaveUserViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    bool isCurrentUser = ViewBag.IsCurrentUser is bool value && value;
+    List<PostViewModel> posts = ViewBag.Posts as List<PostViewModel> ?? new List<PostViewModel>();
+}
+
+<div class="container mt-4">
+    <div class="card card-box-shadow overflow-hidden">
+        <div class="position-relative">
+            <img src="/Images/cover-default.jpg"
+                 class="w-100"
+                 alt="Cover image"
+                 style="height: 320px; object-fit: cover;" />
+
+            <div class="position-absolute" style="bottom: -70px; left: 40px;">
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? "/Images/Users/default-user.png" : Model.ProfilePicture)"
+                     class="rounded-circle border border-4 border-white shadow"
+                     width="160"
+                     height="160"
+                     alt="Profile picture of @Model.Username"
+                     style="object-fit: cover;" />
+            </div>
+        </div>
+
+        <div class="card-body pt-5 mt-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap">
+                <div class="ms-3">
+                    <h2 class="fw-bold mb-1">@Model.FirstName @Model.LastName</h2>
+                    <p class="text-muted mb-2">@@@Model.Username</p>
+                    <p class="mb-3">Welcome to my profile.</p>
+                </div>
+
+                @if (isCurrentUser)
+                {
+                    <div class="mt-3">
+                        <a asp-controller="Profile"
+                           asp-action="Edit"
+                           class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit profile
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3 card-box-shadow">
+        <div class="card-body p-2">
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a href="#posts" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-file-post me-2"></i>
+                    Posts
+                </a>
+                <a href="#friends" class="btn btn-light border px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Friends
+                </a>
+                <a href="#photos" class="btn btn-light border px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-images me-2"></i>
+                    Photos
+                </a>
+                <a href="#messages" class="btn btn-light border px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-messenger me-2"></i>
+                    Message
+                </a>
+                <a href="#search" class="btn btn-light border px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-search me-2"></i>
+                    Search
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4" id="posts">
+        <div class="card card-box-shadow">
+            <div class="card-body">
+                <h4 class="fw-bold mb-4">Posts</h4>
+
+                @if (posts.Count > 0)
+                {
+                    foreach (PostViewModel post in posts)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-header bg-white">
+                                <p class="mb-0 text-muted">
+                                    <small>@post.Created</small>
+                                </p>
+                            </div>
+
+                            <div class="card-body">
+                                <p>@post.Content</p>
+
+                                @if (!string.IsNullOrEmpty(post.Attachment))
+                                {
+                                    <img src="@post.Attachment"
+                                         class="img-fluid rounded"
+                                         alt="Post image" />
+                                }
+                            </div>
+
+                            @if (post.Comments != null && post.Comments.Count > 0)
+                            {
+                                <div class="card-footer bg-white">
+                                    <h6 class="fw-semibold mb-3">Comments</h6>
+
+                                    @foreach (CommentViewModel comment in post.Comments)
+                                    {
+                                        <div class="d-flex align-items-center mb-2">
+                                            <a asp-controller="Profile"
+                                               asp-action="Index"
+                                               asp-route-id="@comment.UserId">
+                                                <img src="@(string.IsNullOrEmpty(comment.UserProfilePicture) ? "/Images/Users/default-user.png" : comment.UserProfilePicture)"
+                                                     class="rounded-circle me-2"
+                                                     width="40"
+                                                     height="40"
+                                                     alt="Profile picture of @comment.UserName"
+                                                     style="object-fit: cover;" />
+                                            </a>
+
+                                            <div>
+                                                <a asp-controller="Profile"
+                                                   asp-action="Index"
+                                                   asp-route-id="@comment.UserId"
+                                                   class="text-decoration-none text-dark">
+                                                    <strong>@comment.UserName</strong>
+                                                </a>
+                                                <p class="mb-0">@comment.Content</p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">This user has no posts yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

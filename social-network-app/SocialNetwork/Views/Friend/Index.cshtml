@@ -34,15 +34,29 @@
                             @foreach (FriendViewModel request in pendingRequests)
                             {
                                 <div class="d-flex align-items-center mb-2">
-                                    <img src="@request.ProfilePicture"
-                                         class="rounded-circle me-2"
-                                         alt="Foto del usuario @request.Username"
-                                         style="width: 50px; height: 50px;" />
+                                    <a asp-controller="Profile"
+                                       asp-action="Index"
+                                       asp-route-id="@request.Id">
+                                        <img src="@(string.IsNullOrEmpty(request.ProfilePicture) ? "/Images/Users/default-user.png" : request.ProfilePicture)"
+                                             class="rounded-circle me-2"
+                                             alt="Foto del usuario @request.Username"
+                                             style="width: 50px; height: 50px;" />
+                                    </a>
 
                                     <div class="flex-grow-1">
-                                        <strong>@request.FirstName @request.LastName</strong>
+                                        <a asp-controller="Profile"
+                                           asp-action="Index"
+                                           asp-route-id="@request.Id"
+                                           class="text-decoration-none text-dark">
+                                            <strong>@request.FirstName @request.LastName</strong>
+                                        </a>
                                         <p class="mb-0">
-                                            <small>@request.Username</small>
+                                            <a asp-controller="Profile"
+                                               asp-action="Index"
+                                               asp-route-id="@request.Id"
+                                               class="text-decoration-none text-muted">
+                                                <small>@request.Username</small>
+                                            </a>
                                         </p>
                                     </div>
 
@@ -70,15 +84,29 @@
                         @foreach (FriendViewModel friend in friends)
                         {
                             <div class="d-flex align-items-center mb-2">
-                                <img src="@friend.ProfilePicture"
-                                     class="rounded-circle me-2"
-                                     alt="Foto del usuario @friend.Username"
-                                     style="width: 50px; height: 50px;" />
+                                <a asp-controller="Profile"
+                                   asp-action="Index"
+                                   asp-route-id="@friend.Id">
+                                    <img src="@(string.IsNullOrEmpty(friend.ProfilePicture) ? "/Images/Users/default-user.png" : friend.ProfilePicture)"
+                                         class="rounded-circle me-2"
+                                         alt="Foto del usuario @friend.Username"
+                                         style="width: 50px; height: 50px;" />
+                                </a>
 
                                 <div class="flex-grow-1">
-                                    <strong>@friend.FirstName @friend.LastName</strong>
+                                    <a asp-controller="Profile"
+                                       asp-action="Index"
+                                       asp-route-id="@friend.Id"
+                                       class="text-decoration-none text-dark">
+                                        <strong>@friend.FirstName @friend.LastName</strong>
+                                    </a>
                                     <p class="mb-0">
-                                        <small>@friend.Username</small>
+                                        <a asp-controller="Profile"
+                                           asp-action="Index"
+                                           asp-route-id="@friend.Id"
+                                           class="text-decoration-none text-muted">
+                                            <small>@friend.Username</small>
+                                        </a>
                                     </p>
                                 </div>
 
@@ -104,13 +132,22 @@
                 {
                     <div class="card mt-3 card-box-shadow">
                         <div class="card-header bg-white d-flex align-items-center">
-                            <img src="@post.UserProfilePicture"
-                                 class="rounded-circle me-2"
-                                 alt="Foto del usuario @post.UserName"
-                                 style="width: 50px; height: 50px;" />
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@post.UserId">
+                                <img src="@(string.IsNullOrEmpty(post.UserProfilePicture) ? "/Images/Users/default-user.png" : post.UserProfilePicture)"
+                                     class="rounded-circle me-2"
+                                     alt="Foto del usuario @post.UserName"
+                                     style="width: 50px; height: 50px;" />
+                            </a>
 
                             <div>
-                                <strong>@post.UserName</strong>
+                                <a asp-controller="Profile"
+                                   asp-action="Index"
+                                   asp-route-id="@post.UserId"
+                                   class="text-decoration-none text-dark">
+                                    <strong>@post.UserName</strong>
+                                </a>
                                 <p class="mb-0 text-muted text-end">
                                     <small>@post.Created.ToString()</small>
                                 </p>
@@ -136,13 +173,22 @@
                                 foreach (CommentViewModel commentVm in post.Comments)
                                 {
                                     <div class="d-flex align-items-center mb-3 border-bottom border-1">
-                                        <img src="@commentVm.UserProfilePicture"
-                                             class="rounded-circle me-2"
-                                             alt="Foto del usuario @commentVm.UserName"
-                                             style="width: 50px; height: 50px;" />
+                                        <a asp-controller="Profile"
+                                           asp-action="Index"
+                                           asp-route-id="@commentVm.UserId">
+                                            <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture) ? "/Images/Users/default-user.png" : commentVm.UserProfilePicture)"
+                                                 class="rounded-circle me-2"
+                                                 alt="Foto del usuario @commentVm.UserName"
+                                                 style="width: 50px; height: 50px;" />
+                                        </a>
 
                                         <div>
-                                            <strong>@commentVm.UserName</strong>
+                                            <a asp-controller="Profile"
+                                               asp-action="Index"
+                                               asp-route-id="@commentVm.UserId"
+                                               class="text-decoration-none text-dark">
+                                                <strong>@commentVm.UserName</strong>
+                                            </a>
                                             <p>@commentVm.Content</p>
                                         </div>
                                     </div>

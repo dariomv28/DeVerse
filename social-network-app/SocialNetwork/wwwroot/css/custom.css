@@ -13,6 +13,12 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
+.brand-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
 .img-perfil {
     width: 6rem;
     height: 6rem;
