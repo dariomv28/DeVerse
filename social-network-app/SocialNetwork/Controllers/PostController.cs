@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.Core.Application.Helpers;
 using SocialNetwork.Core.Application.Interfaces.Services;
 using SocialNetwork.Core.Application.ViewModels.Comment;
 using SocialNetwork.Core.Application.ViewModels.Post;
@@ -102,7 +101,6 @@ namespace SocialNetwork.Controllers
             }
 
             await _postService.Delete(id);
-            UploadFilesHelper.DeleteFile(id, "Posts");
 
             return RedirectToRoute(new { controller = "Home", action = "Index" });
         }

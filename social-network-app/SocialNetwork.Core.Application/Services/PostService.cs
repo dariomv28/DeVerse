@@ -97,14 +97,7 @@ namespace SocialNetwork.Core.Application.Services
         public override async Task Delete(int id)
         {
             var posts = await _postRepository.GetAllAsync();
-
-            foreach (Post sharedPost in posts.Where(p => p.SharedPostId == id))
-            {
-                sharedPost.SharedPostId = null;
-                await _postRepository.UpdateAsync(sharedPost, sharedPost.Id);
-            }
-
-            await base.Delete(id);
+            await DeletePostWithSharedPosts(id, posts);
         }
 
         public async Task<SavePostViewModel> SharePost(int postId, string? content)
@@ -198,6 +191,24 @@ namespace SocialNetwork.Core.Application.Services
             }
 
             return rootPost;
+        }
+
+        private async Task DeletePostWithSharedPosts(int postId, List<Post> posts)
+        {
+            foreach (Post sharedPost in posts.Where(p => p.SharedPostId == postId).ToList())
+            {
+                await DeletePostWithSharedPosts(sharedPost.Id, posts);
+            }
+
+            Post? post = posts.FirstOrDefault(p => p.Id == postId) ?? await _postRepository.GetByIdAsync(postId);
+
+            if (post == null)
+            {
+                return;
+            }
+
+            await _postRepository.DeleteAsync(post);
+            UploadFilesHelper.DeleteFile(postId, "Posts");
         }
     }
 }
