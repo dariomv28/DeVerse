@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /SocialNetwork/wwwroot/Images
+
+# Local configuration
+/SocialNetwork/appsettings.json
