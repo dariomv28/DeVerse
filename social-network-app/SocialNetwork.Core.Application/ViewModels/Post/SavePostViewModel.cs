@@ -10,6 +10,7 @@ namespace SocialNetwork.Core.Application.ViewModels.Post
         public string Content { get; set; }
         public string? Attachment { get; set; }
         public DateTime? Created { get; set; }
+        public int? SharedPostId { get; set; }
 
         [DataType(DataType.Upload)]
         [Display(Name = "Photo")]

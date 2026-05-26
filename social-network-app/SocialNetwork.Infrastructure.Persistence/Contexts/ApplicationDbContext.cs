@@ -77,6 +77,12 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
                 .WithOne(l => l.Post)
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.SharedPost)
+                .WithMany(p => p.SharedByPosts)
+                .HasForeignKey(p => p.SharedPostId)
+                .OnDelete(DeleteBehavior.NoAction);
             #endregion
 
             #region "property configuration"

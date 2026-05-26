@@ -13,6 +13,11 @@ namespace SocialNetwork.Core.Application.ViewModels.Post
         public int LikeCount { get; set; }
         public bool IsLikedByCurrentUser { get; set; }
         public DateTime? Created { get; set; }
+        public int? SharedPostId { get; set; }
+        public string? SharedPostUserId { get; set; }
+        public string? SharedPostUserName { get; set; }
+        public string? SharedPostUserProfilePicture { get; set; }
+        public DateTime? SharedPostCreated { get; set; }
         public ICollection<CommentViewModel>? Comments { get; set; }
     }
 }

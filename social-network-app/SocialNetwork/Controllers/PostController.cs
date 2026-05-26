@@ -76,6 +76,7 @@ namespace SocialNetwork.Controllers
 
             SavePostViewModel postVm = await _postService.GetByIdSaveViewModel(vm.Id);
             vm.Attachment = UploadFile(vm.File, vm.Id, true, postVm.Attachment);
+            vm.SharedPostId = postVm.SharedPostId;
 
             await _postService.Update(vm, vm.Id);
             return RedirectToRoute(new { controller = "Home", action = "Index" });
@@ -136,6 +137,37 @@ namespace SocialNetwork.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Share(int postId, string? content, string? returnUrl)
+        {
+            if (!_validateUserSession.HasUser())
+            {
+                return RedirectToRoute(new { controller = "User", action = "Login" });
+            }
+
+            if (postId <= 0)
+            {
+                return RedirectToSafeReturnUrl(returnUrl);
+            }
+
+            try
+            {
+                SavePostViewModel sharedPost = await _postService.SharePost(postId, content);
+
+                if (sharedPost.Id != 0 && !string.IsNullOrEmpty(sharedPost.Attachment))
+                {
+                    sharedPost.Attachment = CopySharedAttachment(sharedPost.Attachment, sharedPost.Id);
+                    await _postService.Update(sharedPost, sharedPost.Id);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return RedirectToSafeReturnUrl(returnUrl);
+            }
+
+            return RedirectToSafeReturnUrl(returnUrl);
+        }
+
         public async Task<IActionResult> AddComment(int postId)
         {
             if (!_validateUserSession.HasUser())
@@ -179,6 +211,31 @@ namespace SocialNetwork.Controllers
             }
 
             return RedirectToRoute(new { controller = "Home", action = "Index" });
+        }
+
+        private static string CopySharedAttachment(string sourceImagePath, int id)
+        {
+            string relativeSourcePath = sourceImagePath.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+            string sourcePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativeSourcePath);
+
+            if (!System.IO.File.Exists(sourcePath))
+            {
+                return sourceImagePath;
+            }
+
+            string basePath = $"/Images/Posts/{id}";
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Posts", id.ToString());
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            string filename = $"{Guid.NewGuid()}{Path.GetExtension(sourcePath)}";
+            string fileNameWithPath = Path.Combine(path, filename);
+            System.IO.File.Copy(sourcePath, fileNameWithPath, true);
+
+            return $"{basePath}/{filename}";
         }
 
         public static string UploadFile(IFormFile file, int id, bool isEditMode = false, string imagePath = "")
