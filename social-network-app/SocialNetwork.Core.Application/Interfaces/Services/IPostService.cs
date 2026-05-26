@@ -8,5 +8,6 @@ namespace SocialNetwork.Core.Application.Interfaces.Services
         Task<List<PostViewModel>> GetAllViewModelWithInclude();
         Task<PostViewModel> GetByIdViewModelWithInclude(int id);
         Task<List<PostViewModel>> GetPostsByUserViewModelWithIncludes(string userId);
+        Task<(bool IsLiked, int LikeCount)> ToggleLike(int postId);
     }
 }

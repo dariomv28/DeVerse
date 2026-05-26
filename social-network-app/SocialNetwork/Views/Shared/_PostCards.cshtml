@@ -78,7 +78,16 @@
                 </div>
 
                 <div class="px-3 py-2">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button"
+                                class="btn btn-link text-decoration-none p-0 post-like-btn @(post.IsLikedByCurrentUser ? "text-danger" : "text-secondary")"
+                                data-post-id="@post.Id"
+                                data-liked="@post.IsLikedByCurrentUser.ToString().ToLower()"
+                                aria-label="Like post">
+                            <i class="bi @(post.IsLikedByCurrentUser ? "bi-heart-fill" : "bi-heart") fs-5"></i>
+                            <span class="ms-1 post-like-count">@post.LikeCount</span>
+                        </button>
+
                         <button class="btn btn-primary"
                                 type="button"
                                 data-bs-toggle="collapse"

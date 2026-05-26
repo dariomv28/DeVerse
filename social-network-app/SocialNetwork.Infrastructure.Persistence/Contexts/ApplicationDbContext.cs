@@ -13,6 +13,7 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reply> Replies { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<PostLike> PostLikes { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -45,6 +46,7 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Comment>().ToTable("Comments");
             modelBuilder.Entity<Reply>().ToTable("Replies");
             modelBuilder.Entity<Message>().ToTable("Messages");
+            modelBuilder.Entity<PostLike>().ToTable("PostLikes");
             #endregion
 
             #region "primary keys"
@@ -53,6 +55,7 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Comment>().HasKey(c => c.Id);
             modelBuilder.Entity<Reply>().HasKey(r => r.Id);
             modelBuilder.Entity<Message>().HasKey(m => m.Id);
+            modelBuilder.Entity<PostLike>().HasKey(pl => pl.Id);
 
             #endregion
 
@@ -68,6 +71,12 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
                 .WithOne(r => r.Comments)
                 .HasForeignKey(r => r.CommentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Post>()
+                .HasMany<PostLike>(p => p.Likes)
+                .WithOne(l => l.Post)
+                .HasForeignKey(l => l.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
             #region "property configuration"
@@ -80,6 +89,10 @@ namespace SocialNetwork.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Post>().
                 Property(p => p.Content)
                 .IsRequired();
+
+            modelBuilder.Entity<Post>()
+                .Property(p => p.LikeCount)
+                .HasDefaultValue(0);
             #endregion
 
             #region friends
@@ -104,6 +117,16 @@ modelBuilder.Entity<Message>()
     .Property(m => m.Content)
     .IsRequired();
     #endregion
+
+            #region likes
+            modelBuilder.Entity<PostLike>()
+                .Property(pl => pl.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<PostLike>()
+                .HasIndex(pl => new { pl.PostId, pl.UserId })
+                .IsUnique();
+            #endregion
             #region comments
             modelBuilder.Entity<Comment>().
             Property(c => c.UserId)

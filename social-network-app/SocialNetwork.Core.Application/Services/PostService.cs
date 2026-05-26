@@ -36,13 +36,23 @@ namespace SocialNetwork.Core.Application.Services
 
         public override async Task Update(SavePostViewModel vm, int id)
         {
-            vm.UserId = userViewModel.Id;
-            await base.Update(vm, id);
+            Post? post = await _postRepository.GetByIdAsync(id);
+
+            if (post == null)
+            {
+                return;
+            }
+
+            post.UserId = userViewModel.Id;
+            post.Content = vm.Content;
+            post.Attachment = vm.Attachment;
+
+            await _postRepository.UpdateAsync(post, id);
         }
 
         public async Task<List<PostViewModel>> GetAllViewModelWithInclude()
         {
-            var list = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments" });
+            var list = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments", "Likes" });
 
             var filteredList = new List<PostViewModel>();
 
@@ -56,6 +66,8 @@ namespace SocialNetwork.Core.Application.Services
                     UserProfilePicture = userViewModel.ProfilePicture,
                     Content = p.Content,
                     Attachment = p.Attachment,
+                    LikeCount = p.LikeCount,
+                    IsLikedByCurrentUser = p.Likes != null && p.Likes.Any(l => l.UserId == userViewModel.Id),
                     Created = p.Created,
                     Comments = new List<CommentViewModel>()
                 };
@@ -84,7 +96,7 @@ namespace SocialNetwork.Core.Application.Services
 
         public async Task<PostViewModel> GetByIdViewModelWithInclude(int id)
         {
-            var list = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments" });
+            var list = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments", "Likes" });
             var post = list.Where(p => p.Id == id).FirstOrDefault();
 
             SaveUserViewModel user = await _userService.GetByIdAsync(post.UserId);
@@ -96,6 +108,8 @@ namespace SocialNetwork.Core.Application.Services
                 UserProfilePicture = user.ProfilePicture,
                 Content = post.Content,
                 Attachment = post.Attachment,
+                LikeCount = post.LikeCount,
+                IsLikedByCurrentUser = post.Likes != null && post.Likes.Any(l => l.UserId == userViewModel.Id),
                 Created = post.Created,
                 Comments = post.Comments.Select(c => new CommentViewModel
                 {
@@ -113,7 +127,7 @@ namespace SocialNetwork.Core.Application.Services
 
         public async Task<List<PostViewModel>> GetPostsByUserViewModelWithIncludes(string userId)
         {
-            var posts = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments" });
+            var posts = await _postRepository.GetAllWithIncludeAsync(new List<string> { "Comments", "Likes" });
 
             SaveUserViewModel user = await _userService.GetByIdAsync(userId);
 
@@ -128,6 +142,8 @@ namespace SocialNetwork.Core.Application.Services
                     UserProfilePicture = user.ProfilePicture,
                     Content = p.Content,
                     Attachment = p.Attachment,
+                    LikeCount = p.LikeCount,
+                    IsLikedByCurrentUser = p.Likes != null && p.Likes.Any(l => l.UserId == userViewModel.Id),
                     Created = p.Created,
                     Comments = p.Comments.Select(c => new CommentViewModel
                     {
@@ -142,6 +158,11 @@ namespace SocialNetwork.Core.Application.Services
                 .ToList();
 
             return filteredList;
+        }
+
+        public async Task<(bool IsLiked, int LikeCount)> ToggleLike(int postId)
+        {
+            return await _postRepository.ToggleLikeAsync(postId, userViewModel.Id);
         }
 
     }

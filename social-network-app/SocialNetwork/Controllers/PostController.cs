@@ -106,6 +106,36 @@ namespace SocialNetwork.Controllers
             return RedirectToRoute(new { controller = "Home", action = "Index" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleLike(int postId)
+        {
+            if (!_validateUserSession.HasUser())
+            {
+                return Unauthorized(new { success = false, message = "User is not authenticated." });
+            }
+
+            if (postId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid post id." });
+            }
+
+            try
+            {
+                var result = await _postService.ToggleLike(postId);
+
+                return Json(new
+                {
+                    success = true,
+                    isLiked = result.IsLiked,
+                    likeCount = result.LikeCount
+                });
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound(new { success = false, message = "Post not found." });
+            }
+        }
+
         public async Task<IActionResult> AddComment(int postId)
         {
             if (!_validateUserSession.HasUser())

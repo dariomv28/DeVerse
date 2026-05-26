@@ -57,6 +57,8 @@ namespace SocialNetwork.Core.Application.Mappings
                 .ForMember(x => x.File, opt => opt.Ignore())
                 .ReverseMap()
                 .ForMember(x => x.Comments, opt => opt.Ignore())
+                .ForMember(x => x.Likes, opt => opt.Ignore())
+                .ForMember(x => x.LikeCount, opt => opt.Ignore())
                 .ForMember(x => x.CreatedBy, opt => opt.Ignore())
                 .ForMember(x => x.LastModified, opt => opt.Ignore())
                 .ForMember(x => x.LastModifiedBy, opt => opt.Ignore());

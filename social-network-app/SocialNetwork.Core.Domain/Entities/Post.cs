@@ -7,8 +7,10 @@ namespace SocialNetwork.Core.Domain.Entities
         public string UserId { get; set; }
         public string Content { get; set; }
         public string? Attachment { get; set; }
+        public int LikeCount { get; set; }
 
         //navegation properties
         public ICollection<Comment>? Comments { get; set; }
+        public ICollection<PostLike>? Likes { get; set; }
     }
 }

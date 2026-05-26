@@ -10,6 +10,8 @@ namespace SocialNetwork.Core.Application.ViewModels.Post
         public string UserProfilePicture { get; set; }
         public string Content { get; set; }
         public string? Attachment { get; set; }
+        public int LikeCount { get; set; }
+        public bool IsLikedByCurrentUser { get; set; }
         public DateTime? Created { get; set; }
         public ICollection<CommentViewModel>? Comments { get; set; }
     }
