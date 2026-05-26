@@ -122,6 +122,10 @@
                                 <p class="mb-0 text-muted">
                                     <small>@post.SharedPostCreated.ToString()</small>
                                 </p>
+                                @if (!string.IsNullOrWhiteSpace(post.SharedPostContent))
+                                {
+                                    <p class="mb-0 mt-1">@post.SharedPostContent</p>
+                                }
                             </div>
                         </div>
                     }

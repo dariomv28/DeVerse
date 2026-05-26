@@ -152,6 +152,7 @@ namespace SocialNetwork.Core.Application.Services
                     postViewModel.SharedPostUserId = sharedPost.UserId;
                     postViewModel.SharedPostUserName = sharedPostUser.Username;
                     postViewModel.SharedPostUserProfilePicture = sharedPostUser.ProfilePicture;
+                    postViewModel.SharedPostContent = sharedPost.Content;
                     postViewModel.SharedPostCreated = sharedPost.Created;
                 }
             }

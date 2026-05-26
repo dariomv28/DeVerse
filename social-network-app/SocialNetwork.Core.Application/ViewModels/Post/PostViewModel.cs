@@ -17,6 +17,7 @@ namespace SocialNetwork.Core.Application.ViewModels.Post
         public string? SharedPostUserId { get; set; }
         public string? SharedPostUserName { get; set; }
         public string? SharedPostUserProfilePicture { get; set; }
+        public string? SharedPostContent { get; set; }
         public DateTime? SharedPostCreated { get; set; }
         public ICollection<CommentViewModel>? Comments { get; set; }
     }
