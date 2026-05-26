@@ -9,29 +9,62 @@
     foreach (PostViewModel post in Model)
     {
         string commentFormId = $"comment-form-{post.Id}";
+        string postMenuId = $"post-menu-{post.Id}";
+        string deletePostModalId = $"delete-post-modal-{post.Id}";
+        string deletePostModalLabelId = $"delete-post-modal-label-{post.Id}";
 
         <div class="col-8 offset-2">
             <div class="card mt-3 card-box-shadow">
-                <div class="card-header bg-white d-flex align-items-center">
-                    <a asp-controller="Profile"
-                       asp-action="Index"
-                       asp-route-id="@post.UserId">
-                        <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
-                             class="rounded-circle me-2"
-                             alt="Foto del usuario @post.UserName"
-                             style="width: 50px; height: 50px;">
-                    </a>
-
-                    <div>
+                <div class="card-header bg-white d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center">
                         <a asp-controller="Profile"
                            asp-action="Index"
-                           asp-route-id="@post.UserId"
-                           class="text-decoration-none text-dark">
-                            <strong>@post.UserName</strong>
+                           asp-route-id="@post.UserId">
+                            <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
+                                 class="rounded-circle me-2"
+                                 alt="Foto del usuario @post.UserName"
+                                 style="width: 50px; height: 50px;">
                         </a>
-                        <p class="mb-0 text-muted text-end">
-                            <small>@post.Created.ToString()</small>
-                        </p>
+
+                        <div>
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@post.UserId"
+                               class="text-decoration-none text-dark">
+                                <strong>@post.UserName</strong>
+                            </a>
+                            <p class="mb-0 text-muted text-end">
+                                <small>@post.Created.ToString()</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark p-0 border-0"
+                                type="button"
+                                id="@postMenuId"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            <i class="bi bi-three-dots fs-5"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="@postMenuId">
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Post"
+                                   asp-action="Edit"
+                                   asp-route-id="@post.Id">
+                                    <i class="bi bi-pencil-square me-2"></i>Edit
+                                </a>
+                            </li>
+                            <li>
+                                <button type="button"
+                                        class="dropdown-item text-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#@deletePostModalId">
+                                    <i class="bi bi-trash-fill me-2"></i>Delete
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -45,33 +78,15 @@
                 </div>
 
                 <div class="px-3 py-2">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <a class="btn btn-secondary"
-                               asp-controller="Post"
-                               asp-action="Edit"
-                               asp-route-id="@post.Id">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-
-                            <a class="btn btn-danger"
-                               asp-controller="Post"
-                               asp-action="Delete"
-                               asp-route-id="@post.Id">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </div>
-
-                        <div>
-                            <button class="btn btn-primary"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@commentFormId"
-                                    aria-expanded="false"
-                                    aria-controls="@commentFormId">
-                                Comment
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@commentFormId"
+                                aria-expanded="false"
+                                aria-controls="@commentFormId">
+                            Comment
+                        </button>
                     </div>
                 </div>
 
@@ -118,6 +133,31 @@
                                        autocomplete="off" />
                                 <button type="submit" class="btn btn-primary">Post</button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade"
+             id="@deletePostModalId"
+             tabindex="-1"
+             aria-labelledby="@deletePostModalLabelId"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="@deletePostModalLabelId">Delete post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this post?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="post" asp-controller="Post" asp-action="DeletePost">
+                            <input type="hidden" name="id" value="@post.Id" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </div>
                 </div>
