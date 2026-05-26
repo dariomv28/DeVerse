@@ -173,7 +173,7 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             if (user == null)
             {
                 response.HasError = true;
-                response.Error = $"No Accounts registered with {user.UserName}";
+                response.Error = $"No Accounts registered with {request.Email}";
                 return response;
             }
 
@@ -199,12 +199,12 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             if (user == null)
             {
                 response.HasError = true;
-                response.Error = $"No Accounts registered with {user.UserName}";
+                response.Error = $"No Accounts registered with {request.Email}";
                 return response;
             }
 
             var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
-            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+            var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
             if (!result.Succeeded)
             {
                 response.HasError = true;

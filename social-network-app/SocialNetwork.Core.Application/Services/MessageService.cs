@@ -9,11 +9,12 @@ using SocialNetwork.Core.Domain.Entities;
 
 namespace SocialNetwork.Core.Application.Services
 {
-    public class MessageService : GenericService<SaveMessageViewModel, MessageViewModel, Message>, IMessageService
+    public class MessageService :
+        GenericService<SaveMessageViewModel, MessageViewModel, Message>,
+        IMessageService
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AuthenticationResponse userViewModel;
 
         public MessageService(
             IMessageRepository messageRepository,
@@ -23,12 +24,26 @@ namespace SocialNetwork.Core.Application.Services
         {
             _messageRepository = messageRepository;
             _httpContextAccessor = httpContextAccessor;
-            userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
         }
 
-        public async Task<SaveMessageViewModel> SendMessage(SaveMessageViewModel vm)
+        public async Task<SaveMessageViewModel> SendMessage(
+            SaveMessageViewModel vm
+        )
         {
-            vm.SenderId = userViewModel.Id;
+            var user =
+                _httpContextAccessor
+                .HttpContext?
+                .Session
+                .Get<AuthenticationResponse>("user");
+
+            if (user == null)
+            {
+                vm.HasError = true;
+                vm.Error = "User session expired";
+                return vm;
+            }
+
+            vm.SenderId = user.Id;
 
             if (string.IsNullOrWhiteSpace(vm.Content))
             {
@@ -40,14 +55,30 @@ namespace SocialNetwork.Core.Application.Services
             return await base.Add(vm);
         }
 
-        public async Task<List<MessageViewModel>> GetConversationWithUser(string friendId)
+        public async Task<List<MessageViewModel>>
+            GetConversationWithUser(string friendId)
         {
-            var messages = await _messageRepository.GetAllAsync();
+            var user =
+                _httpContextAccessor
+                .HttpContext?
+                .Session
+                .Get<AuthenticationResponse>("user");
+
+            if (user == null)
+            {
+                return new List<MessageViewModel>();
+            }
+
+            var messages =
+                await _messageRepository.GetAllAsync();
 
             return messages
                 .Where(m =>
-                    (m.SenderId == userViewModel.Id && m.ReceiverId == friendId) ||
-                    (m.SenderId == friendId && m.ReceiverId == userViewModel.Id)
+                    (m.SenderId == user.Id &&
+                     m.ReceiverId == friendId)
+                    ||
+                    (m.SenderId == friendId &&
+                     m.ReceiverId == user.Id)
                 )
                 .OrderBy(m => m.Created)
                 .Select(m => new MessageViewModel
@@ -57,7 +88,7 @@ namespace SocialNetwork.Core.Application.Services
                     ReceiverId = m.ReceiverId,
                     Content = m.Content,
                     Created = m.Created ?? DateTime.Now,
-                    IsMine = m.SenderId == userViewModel.Id
+                    IsMine = m.SenderId == user.Id
                 })
                 .ToList();
         }
