@@ -30,7 +30,7 @@
                         <a asp-controller="Profile"
                            asp-action="Index"
                            asp-route-id="@post.UserId">
-                            <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/Images/Users/default-user.png" : post.UserProfilePicture)"
+                            <img src="@(string.IsNullOrEmpty(post.UserProfilePicture)? "/default_images/default-user.png" : post.UserProfilePicture)"
                                  class="rounded-circle me-2"
                                  alt="Profile picture of @post.UserName"
                                  style="width: 50px; height: 50px; object-fit: cover;">
@@ -106,7 +106,7 @@
                             <a asp-controller="Profile"
                                asp-action="Index"
                                asp-route-id="@post.SharedPostUserId">
-                                <img src="@(string.IsNullOrEmpty(post.SharedPostUserProfilePicture)? "/Images/Users/default-user.png" : post.SharedPostUserProfilePicture)"
+                                <img src="@(string.IsNullOrEmpty(post.SharedPostUserProfilePicture)? "/default_images/default-user.png" : post.SharedPostUserProfilePicture)"
                                      class="rounded-circle me-2"
                                      alt="Profile picture of @post.SharedPostUserName"
                                      style="width: 42px; height: 42px; object-fit: cover;">
@@ -175,7 +175,7 @@
                                 <a asp-controller="Profile"
                                    asp-action="Index"
                                    asp-route-id="@commentVm.UserId">
-                                    <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture)? "/Images/Users/default-user.png" : commentVm.UserProfilePicture)"
+                                    <img src="@(string.IsNullOrEmpty(commentVm.UserProfilePicture)? "/default_images/default-user.png" : commentVm.UserProfilePicture)"
                                          class="rounded-circle me-2"
                                          alt="Profile picture of @commentVm.UserName"
                                          style="width: 50px; height: 50px; object-fit: cover;">

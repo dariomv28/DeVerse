@@ -12,13 +12,13 @@
 <div class="container mt-4">
     <div class="card card-box-shadow overflow-hidden">
         <div class="position-relative">
-            <img src="/Images/cover-default.jpg"
+            <img src="/default_images/cover-default.jpg"
                  class="w-100"
                  alt="Cover image"
                  style="height: 320px; object-fit: cover;" />
 
             <div class="position-absolute" style="bottom: -70px; left: 40px;">
-                <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? "/Images/Users/default-user.png" : Model.ProfilePicture)"
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? "/default_images/default-user.png" : Model.ProfilePicture)"
                      class="rounded-circle border border-4 border-white shadow"
                      width="160"
                      height="160"
