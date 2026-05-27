@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SocialNetwork.Core.Application\SocialNetwork.Core.Application.csproj" />
-    <ProjectReference Include="..\SocialNetwork.Core.Domain\SocialNetwork.Core.Domain.csproj" />
-    <ProjectReference Include="..\SocialNetwork.Infrastructure.Identity\SocialNetwork.Infrastructure.Identity.csproj" />
-    <ProjectReference Include="..\SocialNetwork.Infrastructure.Persistence\SocialNetwork.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\FookBace.Core.Application\FookBace.Core.Application.csproj" />
+    <ProjectReference Include="..\FookBace.Core.Domain\FookBace.Core.Domain.csproj" />
+    <ProjectReference Include="..\FookBace.Infrastructure.Identity\FookBace.Infrastructure.Identity.csproj" />
+    <ProjectReference Include="..\FookBace.Infrastructure.Persistence\FookBace.Infrastructure.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

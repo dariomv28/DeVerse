@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SocialNetwork.Core.Domain\SocialNetwork.Core.Domain.csproj" />
+    <ProjectReference Include="..\FookBace.Core.Domain\FookBace.Core.Domain.csproj" />
   </ItemGroup>
 
 </Project>

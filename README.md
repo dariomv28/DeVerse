@@ -62,19 +62,19 @@ To run this project, you'll need:
 
 * Login Page
 
-![Login Page](https://github.com/AleGxrcia/social-network-app/blob/main/SocialNetwork/wwwroot/ProjectImages/Login.png)
+![Login Page](https://github.com/AleGxrcia/social-network-app/blob/main/FookBace/wwwroot/ProjectImages/Login.png)
 
 * Home (Publications)
 
-![Home Page](https://github.com/AleGxrcia/social-network-app/blob/main/SocialNetwork/wwwroot/ProjectImages/HomePage.png)
+![Home Page](https://github.com/AleGxrcia/social-network-app/blob/main/FookBace/wwwroot/ProjectImages/HomePage.png)
 
 * My Profile
 
-![Profile Page](https://github.com/AleGxrcia/social-network-app/blob/main/SocialNetwork/wwwroot/ProjectImages/MyProfile.png)
+![Profile Page](https://github.com/AleGxrcia/social-network-app/blob/main/FookBace/wwwroot/ProjectImages/MyProfile.png)
 
 * Friends
 
-![Friends Page](https://github.com/AleGxrcia/social-network-app/blob/main/SocialNetwork/wwwroot/ProjectImages/FriendPosts.png)
+![Friends Page](https://github.com/AleGxrcia/social-network-app/blob/main/FookBace/wwwroot/ProjectImages/FriendPosts.png)
 
 ## Developer
 - [Federico A. Garcia](https://github.com/AleGxrcia)
