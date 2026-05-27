@@ -18,5 +18,11 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body > .container-fluid {
+  flex: 1 0 auto;
 }
