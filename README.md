@@ -6,9 +6,9 @@ The application is organized as a layered .NET solution that separates presentat
 
 ## Demo Video
 
-[Watch the project demo on YouTube](https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID)
+https://www.youtube.com/watch?v=Ja2wGImaThw
 
-> Replace `YOUR_DEMO_VIDEO_ID` with the final uploaded demo video ID.
+
 
 ## Project Goals
 
